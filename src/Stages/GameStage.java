@@ -15,16 +15,43 @@ import Main.GamePanel;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
+import Work.MyAudio;
 
 public class GameStage extends Stage {
 
-	BufferedImage[] tiles;
+	public BufferedImage[] tiles;
 	public static LevelGenerator level;
+	GameOverStage overStage;
+
+	Maneger maneger;
+	MyAudio music;
+
+	private static final int PLATE_DOWN = 0;
+	private static final int PLATE_UP = 1;
+	private static final int DOOR_OPEN = 2;
+	private static final int DOOR_CLOSE = 3;
 	
-	public GameStage() {
+	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close"};
+	MyAudio sounds[] = new MyAudio[soundsNames.length];
+	
+	
+	
+	public GameStage(Maneger maneger, Long seed) {
+		this.maneger = maneger;
+		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+		music.play(-1);
 		
+		for (int i = 0; i < sounds.length; i++) {
+			sounds[i] = new MyAudio("/sounds/" + soundsNames[i] + ".wav");
+		}
 		
-		level = new LevelGenerator();
+		isGameOver = false;
+
+		if(seed == null)
+			level = new LevelGenerator();
+		else
+			level = new LevelGenerator(seed);
+			
 		level.generate(100, 100);
 		mapX = level.getWidth()*tilesize/2;
 		mapY = level.getHeight()*tilesize/2;
@@ -61,19 +88,30 @@ public class GameStage extends Stage {
 	public static double mapY;
 	public static double mapX2;
 	public static double mapY2;
+	
 	public static int vw = GamePanel.getCountWidth()/2;
 	public static int vh = GamePanel.getCountHeight()/2;
 	
+	
 	Player player;
-
+	public static boolean isGameOver = false;
+	
 	int time = 0;
 	int lavatime = 0;
 	double lavaH = 0;
 	
 	int countCrushers = 0;
+	public static float radius = 1;
+	
+	int gold = 0;
+	int diamonds = 0;
 	
 	@Override
-	public void draw(Graphics2D g) {
+	public void draw(Graphics2D g, Graphics2D gf) {
+		if(isGameOver) {
+			overStage.draw(g, gf);
+			return;
+		}
 		
 		countCrushers = 0;
 
@@ -195,6 +233,27 @@ public class GameStage extends Stage {
 //		g.drawLine(GamePanel.getGameWidth()/2, 0, GamePanel.getGameWidth()/2, GamePanel.getGameHeight());
 //		g.drawLine(0, GamePanel.getGameHeight()/2, GamePanel.getGameWidth(), GamePanel.getGameHeight()/2);
 
+		gf.setColor(new Color(37,107,142));//240,235,16));
+		gf.drawImage(tiles[level.BLOCK_DIAMOND-1],
+				(int) ((0)*GamePanel.scalefull),
+				(int) ((0)*GamePanel.scalefull),
+				(int) (16*GamePanel.scalefull),
+				(int) (16*GamePanel.scalefull),
+				null);
+		gf.drawString("" + diamonds,
+				(int) ((11)*GamePanel.scalefull),
+				(int) ((10)*GamePanel.scalefull));//+gf.getFont().getSize()/2
+		
+		gf.drawImage(tiles[level.BLOCK_GOLD-1],
+				(int) ((0)*GamePanel.scalefull),
+				(int) ((8)*GamePanel.scalefull),
+				(int) (16*GamePanel.scalefull),
+				(int) (16*GamePanel.scalefull),
+				null);
+		gf.setColor(new Color(178,172,0));
+		gf.drawString("" + gold,
+				(int) ((11)*GamePanel.scalefull),
+				(int) ((18)*GamePanel.scalefull));//+gf.getFont().getSize()/2
 	}
 	
 	RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
@@ -203,11 +262,14 @@ public class GameStage extends Stage {
 			new float[] { .0f,1f},
 			new Color[] {new Color(0,0,0,0), new Color(0,0,0,255)});
 
-	private RadialGradientPaint getGradient() {
+	protected static RadialGradientPaint getGradient() {
+		if(!(radius > 0)) {
+			radius = 0.1f;
+		}
 		int g = (int)(5 + 5*Math.cos(gradientT/10d));
 		return new RadialGradientPaint(
 				new Point(GamePanel.getGameWidth()/2,GamePanel.getGameHeight()/2),
-				GamePanel.getGameHeight()/2f * GameData.visionRadius + (int)(4*GamePanel.quality*Math.cos(gradientT/10d)),
+				GamePanel.getGameHeight()/2f * GameData.visionRadius * radius + (int)(4*GamePanel.quality*Math.cos(gradientT/10d)),
 				new float[] { .0f,1f},
 				GameData.lavaLight ? new Color[] {new Color(g,g,255), new Color(0,255,0,10)} : 
 					new Color[] {new Color(0,0,0,0), new Color(g,g,g)});
@@ -218,15 +280,24 @@ public class GameStage extends Stage {
 	final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
 
 	public static double crusserY = 0;
-	int gradientT = 0;
+	static int gradientT = 0;
 	
 	
 	@Override
 	public void update() {
+		if(isGameOver) {
+			overStage.update();
+			radius = (radius-1)*0.8f + 1;
+			gradientT = 0;
+			return;
+		}
+		
+		
+		radius = (radius-1)*0.8f + 1;
 //		System.out.println(time + ": " + crusserY);
 		lavatime++;
 		gradientT++;
-		lavaH = 4+Math.cos(lavatime/10f)*4;
+		lavaH = 2+Math.cos(lavatime/10f)*2;
 		if(time == 0) {
 			crusserY = (crusserY - 16) / 2 + 16;
 			if(Math.round(crusserY) == 16) {
@@ -251,6 +322,15 @@ public class GameStage extends Stage {
 		
 
 		player.update();
+		if(player.isGameOver && !isGameOver) {
+			isGameOver = true;
+			player.isGameOver = false;
+			overStage = new GameOverStage(music, maneger, player, gold, diamonds, level, this);
+			if(!player.getGameOvers()[0])
+				music.stop();
+		}
+		
+		
 		int tileX = (int) (mapX/tilesize);
 		int tileY = (int) (mapY/tilesize);
 		for (int y = -vh-1; y < GamePanel.getCountWidth()-vh+1; y++) {
@@ -268,20 +348,34 @@ public class GameStage extends Stage {
 				) {
 					level.setTile(x+tileX+1, y+tileY, level.BLOCK_STONE_DOOR);
 					level.setTile(x+tileX+1, y+tileY+1, level.BLOCK_STONE_DOOR);
+					sounds[DOOR_OPEN].stop();
+					sounds[DOOR_CLOSE].play(0);
 				}
 				if(5 == t && isHit) {
 					level.setTile(x+tileX, y+tileY, level.BLOCK_PLATE_ACTIVATE);
-					if(level.BLOCK_STONE_DOOR == level.getBlock(x+tileX+1, y+tileY)) {
+					if(level.BLOCK_STONE_DOOR == level.getBlock(x+tileX+1, y+tileY)
+							&& level.BLOCK_STONE_DOOR == level.getBlock(x+tileX+1, y+tileY-1)) {
+						sounds[DOOR_OPEN].play(0);
 						level.setTile(x+tileX+1, y+tileY, level.BLOCK_DOOR_OPEN_DOWN);
-					}
-					if(level.BLOCK_STONE_DOOR == level.getBlock(x+tileX+1, y+tileY-1)) {
 						level.setTile(x+tileX+1, y+tileY-1, level.BLOCK_DOOR_OPEN_UP);
+					}else {
+						sounds[PLATE_DOWN].play(0);
 					}
 				}
 				if(level.BLOCK_PLATE_ACTIVATE == t && !isHit) {
 					level.setTile(x+tileX, y+tileY, level.BLOCK_PLATE);
+					sounds[PLATE_UP].play(0);
 				}
-				
+				if(isHit && t == level.BLOCK_GOLD) {
+					gold++;
+					level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
+					GameData.complitedAchievements(GameData.ACHIEVEMENTS_GOLD);
+				}
+				if(isHit && t == level.BLOCK_DIAMOND) {
+					diamonds++;
+					level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
+					GameData.complitedAchievements(GameData.ACHIEVEMENTS_DIAMOND);
+				}
 				
 				level.setHit(x+tileX, y+tileY, false);
 			}
@@ -335,5 +429,13 @@ public class GameStage extends Stage {
 	
 	public void deleteTraps(int x, int y) {
 		level.deleteTraps(x, y);
+	}
+
+	@Override
+	protected void releasedAll() {
+		player.setVK_UP(false);
+		player.setVK_DOWN(false);
+		player.setVK_RIGHT(false);
+		player.setVK_LEFT(false);
 	}
 }

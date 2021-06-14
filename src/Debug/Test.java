@@ -1,12 +1,14 @@
 package Debug;
 
-import Work.LevelGenerator;
 
 public class Test {
 	
 	static String blocks = "S ##>__^^=|_I^ @FN^``**B  V";
 
 	public static void main(String[] args) {
+		System.out.println((Long.MAX_VALUE+"").length());
+		System.out.println(Character.MAX_CODE_POINT);
+		System.out.println(Character.MIN_CODE_POINT);
 //		LevelGenerator generator = new LevelGenerator();
 //		generator.generate(50, 50);
 //		

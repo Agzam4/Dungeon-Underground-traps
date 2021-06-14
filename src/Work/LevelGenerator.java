@@ -1,8 +1,9 @@
 package Work;
 
 import java.awt.Rectangle;
-import java.awt.geom.Rectangle2D;
 import java.util.Random;
+
+import javax.swing.JOptionPane;
 
 import Game.Tile;
 
@@ -69,20 +70,32 @@ public class LevelGenerator {
 	int height;
 	int width;
 
-	private int gold;
-	private int diamonds;
+	public int gold;
+	public int diamonds;
 	
 	
 	public LevelGenerator() {
 		// Генерация seed 
 		Random rand = new Random();
 		seed = rand.nextLong();
+		checkSeed();
 		random = new Random(seed);
 	}
 	
 	public LevelGenerator(long seed) {
 		this.seed = seed;
+		checkSeed();
 		random = new Random(seed);
+	}
+	
+	private void checkSeed() {
+		if(GameData.lastSeed != null) {
+			if(GameData.lastSeed.equals(seed)) {
+				seed += 1;
+			}
+		}
+		GameData.lastSeed = seed;
+		System.out.println("Seed: " + seed);
 	}
 	
 
@@ -96,7 +109,6 @@ public class LevelGenerator {
 	int fy; // Финиш Y
 	
 	public void generate(int w, int h) {
-		System.out.println("Seed: " + seed);
 		level = new int[w][h];
 		height = h;
 		width = w;
@@ -150,6 +162,12 @@ public class LevelGenerator {
 				tiles[x][y] = new Tile(level[x][y]-1, x*16, y*16);
 			}
 		}
+		
+		calculate();
+	}
+	
+	private void calculate() {
+		// TODO Auto-generated method stub
 	}
 	
 	private void room() {
@@ -200,7 +218,7 @@ public class LevelGenerator {
 					2 != getBlock(tileX+roomX,tileY+roomY-1)
 					)) {
 				setBlock(tileX+roomX, tileY+roomY, 9);
-//				rope();
+				rope();
 				if(5 < air) {
 					spiky(tileX+roomX, tileY+roomY);
 				}
@@ -251,20 +269,16 @@ public class LevelGenerator {
 	private void lakeOfLava(int x, int y) {
 		if(random.nextDouble() < RARE_LAKE_OF_LAVA) {
 			int lw = 16;
-			System.out.println("Lava: ");
 			for (int lx = 1; lx < 16; lx++) {
-				for (int ly = -2; ly < 2; ly++) {
+				for (int ly = -2; ly < 3; ly++) {
 					if(!isStone(x - lx, y + ly)) {
-						System.out.println("# " + lx + " " + ly);
 						lw = (int) (Math.floor((lx-1)/2)*2+1);
-						System.out.println("## " + lw);
 						lx = 99;
 						ly = 99;
 						break;
 					}
 				}
 			}
-			System.out.println("LW: " + lw);
 			
 
 			if(lw > 2) {
@@ -356,7 +370,6 @@ public class LevelGenerator {
 		setBlock(tileX+roomX+lava, tileY+roomY-1, 1);
 		if (random.nextDouble() < (RARE_LAVA_W-lava)/RARE_LAVA_W) {
 			lava();
-			System.out.println("lava: " + lava);
 		}else {
 			endLava();
 		}
@@ -425,10 +438,15 @@ public class LevelGenerator {
 		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE || type == BLOCK_PLATE;
 	}
 	
-	private boolean isVoidBlock(int x, int y) {
+	private boolean isReplaseble_noPlate(int x, int y) {
 		int type = getBlock(x, y);
-		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_PLATE;
+		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE;
 	}
+	
+//	private boolean isVoidBlock(int x, int y) {
+//		int type = getBlock(x, y);
+//		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_PLATE;
+//	}
 	
 	private boolean isStone(int x, int y) {
 		return BLOCK_STONE == getBlock(x, y);
@@ -449,7 +467,6 @@ public class LevelGenerator {
 				if(!isReplaseble(x-xx, y))
 					return;
 			}
-			System.out.println(isStone(x, y) + " " + isStone(x, y+1) + " " + isStone(x+1, y-1) + " " + isStone(x-5, y));
 			if(5 != getBlock(x, y) && isStone(x, y+1) && isStone(x+1, y-1) && isStone(x-5, y)) {//2 == getBlock(tileX+roomX-5, tileY+roomY)) {
 				for (int xx = 0; xx < 5; xx++) {
 					setAirblock(x-xx, y);
@@ -648,6 +665,20 @@ public class LevelGenerator {
 				}
 				if(BLOCK_SPIKY_ONE == getBlock(xx+x, yy+y)) {
 					setTile(xx+x, yy+y, BLOCK_AIR);;
+				}
+				if(BLOCK_LAVA == getBlock(xx+x, yy+y)) {
+					if(xx == 0) {
+						setTile(xx+x, yy+y, BLOCK_MAGMA_HALF);
+						setTile(xx+x, yy+y-1, BLOCK_AIR);
+					}else {
+						setTile(xx+x, yy+y, BLOCK_MAGMA);
+						if(getBlock(xx+x, yy+y-1) == BLOCK_AIR)
+							setTile(xx+x, yy+y-1, BLOCK_MAGMA_HALF);
+						else {
+							setTile(xx+x, yy+y-1, BLOCK_MAGMA);
+							setTile(xx+x, yy+y-2, BLOCK_MAGMA_HALF);
+						}
+					}
 				}
 			}
 		}

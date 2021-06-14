@@ -23,11 +23,13 @@ public class Tile {
 	private static final int UPHALF = 12;
 	private static final int LAVA = 13;
 	
+	private static final int FINISH = 15;
+	
 	public static final int[] hitboxsTypes = {
 		AIR, WALL, WALL, WALL, PLATE, PLATE, SPIKY,
 		AIR, LADDER, STICK, HALF, DOOR, SPIKYUPBLOCK, AIR,
-		WALL, AIR, WALL, SPIKYUP, HITDOOR, HITDOOR, AIR,
-		AIR, AIR, GOLD, AIR, SPIKYUP, WALL, STICK,
+		WALL, FINISH, WALL, SPIKYUP, HITDOOR, HITDOOR, GOLD,
+		GOLD, AIR, GOLD, AIR, SPIKYUP, WALL, STICK,
 		UPHALF, LAVA, WALL, HALF, SPIKY, AIR, AIR
 	};
 
@@ -78,11 +80,12 @@ public class Tile {
 		case SPIKYUP:
 			rectangle = new Rectangle(x, y, TS, TS-9);
 			ladder = new Rectangle(x, y, 0, 0);
-			redzome = new Rectangle(x, y+1, TS-2, TS-1);
+			redzome = new Rectangle(x+2, y+1, TS-4, TS-1);
 			break;
 		case GOLD:
-			rectangle = new Rectangle(x+7, y+7, 2, 2);
+			rectangle = new Rectangle(x, y, 0, 0);
 			ladder = new Rectangle(x, y, 0, 0);
+			touchbox = new Rectangle(x+7, y+7, 2, 2);
 			break;
 		case LADDER:
 			rectangle = new Rectangle(x, y, 0, 0);
@@ -105,6 +108,11 @@ public class Tile {
 			rectangle = new Rectangle(x, y+TS/2, TS, TS/2);
 			ladder = new Rectangle(x, y, 0, 0);
 			redzome = new Rectangle(x+1, y, TS-2, TS);
+			break;
+		case FINISH:
+			rectangle = new Rectangle(x, y, 0, 0);
+			ladder = new Rectangle(x, y, 0, 0);
+			redzome = new Rectangle(x+1, y+4, TS-2, TS-4);
 			break;
 		default:
 			break;
