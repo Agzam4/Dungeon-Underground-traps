@@ -32,8 +32,9 @@ public class GameOverStage extends Stage {
 	GameStage gameStage;
 	
 	MyAudio audio;
-	
-	Button menu = new Button("Menu", 0, 0);
+
+	Button menu = new Button(GameData.texts[GameData.TEXT_MENU], 0, 0);
+	Button next = new Button(GameData.texts[GameData.TEXT_NEXT], 0, 0);
 	
 	MyAudio audio2;
 //	ArrayList<Gold> golds = new ArrayList<Gold>();
@@ -60,8 +61,24 @@ public class GameOverStage extends Stage {
 //			golds.get(i).setTargetPosition(GamePanel.frameW/2, GamePanel.frameH/2);
 //		}
 			gameOver = "You win!";
+			GameData.consecutive_wins++;
+			if(GameData.consecutive_wins > 9)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD10);
+			if(GameData.consecutive_wins > 49)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD50);
+			if(GameData.consecutive_wins > 99)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD100);
+			if(GameData.consecutive_wins > 999)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD1000);
+			
 			GameData.complitedAchievements(GameData.ACHIEVEMENTS_CHEST);
+
+			if(gold == generator.gold)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_BAG_OF_GOLD);
+			if(diamonds == generator.diamonds)
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_BAG_OF_DIAMONDS);
 		}else {
+			GameData.consecutive_wins = 0;
 			gameOver = "You lost from ";
 			if(go[1]) {
 				gameOver += "spikes";
@@ -76,6 +93,8 @@ public class GameOverStage extends Stage {
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_LAVA);
 			}
 		}
+		
+		
 	}
 	
 	double d = 0;
@@ -83,6 +102,7 @@ public class GameOverStage extends Stage {
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
 		menu.draw(gf);
+		next.draw(gf);
 //		g.setColor(Color.DARK_GRAY);
 //		g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
 //		g.setPaint(gameStage.getGradient());
@@ -225,14 +245,21 @@ public class GameOverStage extends Stage {
 	
 	@Override
 	public void update() {
+		next.update();
 		menu.update();
-		menu.setPosition(GamePanel.frameW/2,
+		menu.setPosition(GamePanel.frameW/5*2,
+				(int) (GamePanel.frameH -menu.getBh()*2));
+		next.setPosition(GamePanel.frameW/5*3,
 				(int) (GamePanel.frameH -menu.getBh()*2));
 		time++;
 		if(menu.isClicked()) {
 			audio2.stop();
 			audio2.close();
 			maneger.loadStage(Maneger.MENU);
+		}else if(next.isClicked()) {
+			audio2.stop();
+			audio2.close();
+			maneger.loadStage(Maneger.GAME);
 		}
 		int targerW = (int) (GamePanel.frameW);
 		d = (d-targerW)*0.9 + targerW;

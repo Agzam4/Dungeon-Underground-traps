@@ -9,6 +9,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
@@ -39,7 +40,7 @@ public class DungeonJFrame extends JFrame {
 		});
 	}
 
-	String[] txts = {"",": infinity levels"};
+	String[] txts = {"",""};
 	
 	/**
 	 * Create the frame.
@@ -57,6 +58,7 @@ public class DungeonJFrame extends JFrame {
 		setContentPane(contentPane);
 		
 		addWindowListener(new WindowListener() {
+			int count = 0;
 			
 			@Override
 			public void windowOpened(WindowEvent arg0) {
@@ -76,7 +78,15 @@ public class DungeonJFrame extends JFrame {
 			
 			@Override
 			public void windowClosing(WindowEvent arg0) {
-				GameData.save();
+				if(count > 5) {
+					System.exit(0);
+				}
+				count++;
+				try {
+					GameData.save();
+				} catch (Exception e) {
+					System.exit(0);
+				}
 			}
 			
 			@Override

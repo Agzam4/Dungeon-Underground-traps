@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import Main.GamePanel;
 import Objects.AchievementBlock;
 import Objects.Button;
+import Work.GameData;
 import Work.LevelGenerator;
 
 public class AchievementStage extends Stage {
@@ -16,7 +17,7 @@ public class AchievementStage extends Stage {
 	
 	AchievementBlock achievements[] = new AchievementBlock[16];
 	
-	Button back = new Button("Back", GamePanel.frameW/2, 0);
+	Button back = new Button(GameData.texts[GameData.TEXT_BACK], GamePanel.frameW/2, 0);
 	
 	Maneger maneger;
 	

@@ -167,7 +167,18 @@ public class LevelGenerator {
 	}
 	
 	private void calculate() {
-		// TODO Auto-generated method stub
+		gold = 0;
+		diamonds = 0;
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				if(level[x][y] == BLOCK_GOLD) {
+					gold++;
+				}
+				if(level[x][y] == BLOCK_DIAMOND) {
+					diamonds++;
+				}
+			}
+		}
 	}
 	
 	private void room() {

@@ -108,6 +108,7 @@ public class GameStage extends Stage {
 	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
+		GameData.drawAchievementBlock(gf);
 		if(isGameOver) {
 			overStage.draw(g, gf);
 			return;
@@ -285,6 +286,8 @@ public class GameStage extends Stage {
 	
 	@Override
 	public void update() {
+		GameData.updateAchievementBlock();
+		
 		if(isGameOver) {
 			overStage.update();
 			radius = (radius-1)*0.8f + 1;

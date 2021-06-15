@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import Main.GamePanel;
 import Work.GameData;
 import Work.MouseController;
+import Work.MyAudio;
 import Work.MyFile;
 
 public class AchievementBlock {
@@ -19,6 +20,7 @@ public class AchievementBlock {
 	static BufferedImage fg = getImage("fg");
 	static BufferedImage imgs = getImage("img");
 	static String achievementsText[] = MyFile.readFileInResource("/text/achievements." + System.getProperty("user.language")).split("\n");
+	MyAudio audio;
 	
 	int x, y, id;
 	int s = (int) (GamePanel.scalefull * 15);
@@ -27,15 +29,37 @@ public class AchievementBlock {
 
 	String title;
 	String text;
+	
+	int time = 0; 
 
 	double letterNums = 0;
 	double letterNums2 = 0;
 	
+	boolean isNew = false;
+
 	public AchievementBlock(int id) {
 		image = imgs.getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
 		this.id = id;
 		title = achievementsText[id*2];
 		text = achievementsText[id*2 + 1];
+		bc =  Color.BLACK;
+		fc =  Color.WHITE;
+	}
+	public AchievementBlock(int id, boolean n) {
+		audio = new MyAudio("/music/Achievement.wav");
+		image = imgs.getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
+		this.id = id;
+		title = achievementsText[id*2];
+		text = achievementsText[id*2 + 1];
+		isNew = n;
+		if(isNew) {
+			bc = new Color(255,255,200,100);
+			fc = new Color(0,0,0);
+		}else {
+			bc =  Color.BLACK;
+			fc =  Color.WHITE;
+		}
+		x = 0;
 	}
 
 	public void draw(Graphics2D gf) {
@@ -88,8 +112,10 @@ public class AchievementBlock {
 		drawString(gf, "  " + newTitle, newX, y);
 	}
 	
-	Color fc = Color.WHITE;
-	Color bc = Color.BLACK;
+	Color fc;
+	Color bc;
+	
+	
 	
 	private void drawString(Graphics2D gf, String str, int x, int y) {
 		gf.setColor(fc);
@@ -108,7 +134,42 @@ public class AchievementBlock {
 		gf.drawImage(img, x-w/2, y-h/2, w, h, null);
 	}
 	
+	double x2 = 1;
+	
+	public void draw2(Graphics2D gf) {
+		x =  GamePanel.frameH/10;
+		y = (int) (GamePanel.frameH/10 + x2*GamePanel.frameH/7*2 + GamePanel.frameH/7*5);
+
+		int ry = (int) (x2*GamePanel.frameH/7*2 + GamePanel.frameH/7*5);
+		int rh = GamePanel.frameH/5;
+
+		gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) (rh/5)));
+		drawString(gf, title, (int) (x + 15*GamePanel.scalefull), ry + rh/4*2);
+		gf.setFont(new Font("Arial", Font.PLAIN, (int) (rh/7)));
+		drawString(gf, text, (int) (x + 15*GamePanel.scalefull), (int) (ry + rh/4*2.75));
+		
+		draw(gf);
+		gf.setColor(new Color(0,0,0,150));
+		gf.fillRect(0, ry, GamePanel.frameW, rh);
+		gf.setColor(new Color(255,255,255,150));
+		gf.drawRect(-1, ry-1, GamePanel.frameW+2, rh+1);
+		
+	}
+	
 	public void update() {
+		if(isNew && time == 0) {
+			audio.play(0);
+		}
+		time++;
+		if(time < 25) {
+			x2 /= 2;
+		}
+		if(time > 25) {
+			x2 = (x2 - 1)/2 + 1;
+		}
+		if(Math.round(x2*100) == 100) {
+			needRemove = true;
+		}
 		int mx = MouseController.getMousePointOnFrame().x;
 		int my = MouseController.getMousePointOnFrame().y;
 		int w = (int) (bg.getWidth()*GamePanel.scalefull);
@@ -142,5 +203,10 @@ public class AchievementBlock {
 	public void setPosition(int x, int y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	boolean needRemove;
+	public boolean needRemove() {
+		return needRemove;
 	}
 }

@@ -12,11 +12,12 @@ public class Maneger {
 	public final static int GAME = 1;
 	public final static int GAMEOVER = 2;
 	public final static int ACHIEVEMENTS = 3;
+	public final static int SETTINGS = 4;
 	
 
 	public static int selected = 0;
 	
-	private Stage[] stages = new Stage[4];
+	private Stage[] stages = new Stage[5];
 	
 	public Maneger(int stageID) {
 		loadStage(stageID);
@@ -42,6 +43,9 @@ public class Maneger {
 			break;
 		case ACHIEVEMENTS:
 			stages[ACHIEVEMENTS] = new AchievementStage(this);
+			break;
+		case SETTINGS:
+			stages[SETTINGS] = new SettingsStage(this);
 			break;
 		default:
 			break;

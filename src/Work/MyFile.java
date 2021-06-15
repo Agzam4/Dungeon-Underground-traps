@@ -1,9 +1,12 @@
 package Work;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,16 +40,31 @@ public class MyFile {
 	}
 
 	public static String readFileInResource(String name) {
-		String string = "";
+		System.out.println("Reading File In Resource: " + name);
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				MyFile.class.getClass().getResourceAsStream(name)));
+		
+		String line;
+		String txt = "";
 		try {
-			byte[] all = Files.readAllBytes(
-					Paths.get(MyFile.class.getResource(name).toURI()));//Paths.get(name)
-			string = new String(all);
-			return string;
-		} catch (URISyntaxException | IOException e) {
-			e.printStackTrace();
+			while ((line = reader.readLine()) != null) {
+				txt += line + "\n";
+			}
+		} catch (IOException e) {
 		}
-		return null;
+		
+		//	    data = MyFile.class.getResourceAsStream(name).
+//		String string = "";
+//		try {
+//			byte[] all = Files.readAllBytes(
+//					Paths.get(MyFile.class.getResourceAsStream(name).));//Paths.get(name)
+//			string = new String(all);
+//			return string;
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		return txt;
 	}
 	public static String readFile(String name) {
 		String string = "";

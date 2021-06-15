@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 
 import Main.GamePanel;
 import Objects.Button;
+import Work.GameData;
 import Work.LevelGenerator;
 import Work.MouseController;
 import Work.MyAudio;
@@ -20,7 +21,7 @@ public class MenuStage extends Stage {
 	private static final int PLAY = 0;
 	private static final int PLAY_ON_SEED = 1;
 	private static final int BOOSTS = 2;
-	private static final int CREDITS = 3;
+	private static final int SETTINGS = 3;
 	private static final int ATCHIVMENTS = 4;
 	private static final int EXIT = 5;
 	
@@ -30,17 +31,16 @@ public class MenuStage extends Stage {
 	Maneger maneger;
 	public MenuStage(Maneger m) {
 		for (int i = 0; i < myButtons.length; i++) {
-			myButtons[i] = new Button(buttons[i], 0, 0);
+			myButtons[i] = new Button(GameData.texts[i], 0, 0);
 		}
 		myButtons[BOOSTS].clickable = false;
-		myButtons[CREDITS].clickable = false;
-//		myButtons[ATCHIVMENTS].clickable = false;
+		myButtons[SETTINGS].clickable = false;
 		pop = new MyAudio("/sounds/pop-1.wav");
 		click = new MyAudio("/sounds/pop-2.wav");
 		maneger = m;
 	}
 	
-	String buttons[] = {"Play", "Seed", "Shop", "Settings" /*Credits*/, "Achievement" /*"achievement"*/, "Exit"};
+	String buttons[] = new String[6];
 	Button myButtons[] = new Button[buttons.length];
 	
 	float buttonsv[] = {0, 0, 0, 0, 0, 0};
@@ -50,6 +50,8 @@ public class MenuStage extends Stage {
 	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
+		
+		
 		for (int i = 0; i < myButtons.length; i++) {
 			myButtons[i].draw(gf);
 		}
@@ -94,7 +96,6 @@ public class MenuStage extends Stage {
 	int dist = 0;
 	
 	private void drawButtons(Graphics2D gf) {
-		
 		for (int i = 0; i < buttons.length; i++) {
 			gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) ((15+buttonsv[i])*GamePanel.scalefull))); // TODO
 			buttonsW[i] = gf.getFontMetrics().stringWidth(buttons[i]);
@@ -159,12 +160,15 @@ public class MenuStage extends Stage {
 						char[] sc = seed.toCharArray();
 						long newSeed = Long.MIN_VALUE;
 						for (int j = 0; j < sc.length; j++) {
-							newSeed += (int) sc[j] * j * Character.MAX_CODE_POINT;
+							newSeed += (int) sc[j] * (j+1) * Character.MAX_CODE_POINT;
 						}
 						maneger.setGameStage(newSeed);
 					}
 					break;
-					
+
+				case SETTINGS:
+					maneger.loadStage(Maneger.SETTINGS);
+					break;
 				case ATCHIVMENTS:
 					maneger.loadStage(Maneger.ACHIEVEMENTS);
 					break;

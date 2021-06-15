@@ -1,10 +1,16 @@
 package Work;
 
+import java.awt.Graphics2D;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
+import Objects.AchievementBlock;
+
 public class GameData {
+	
+	public static final String language = getLanguage();
 
 	public static final int ACHIEVEMENTS_SPIKES = 0;
 	public static final int ACHIEVEMENTS_LAVA = 1;
@@ -24,11 +30,49 @@ public class GameData {
 	public static final int ACHIEVEMENTS_SEARCH7 = 15;
 	
 	public static boolean achievements[] = loadAchievements();
+
+	public static final String texts[] = loadTexts();
+	public static final int TEXT_PLAY = 0;
+	public static final int TEXT_SEED = 1;
+	public static final int TEXT_SHOP = 2;
+	public static final int TEXT_SETTINGS = 3;
+	public static final int TEXT_ACHIEVEMENTS = 4;
+	public static final int TEXT_EXIT = 5;
+	public static final int TEXT_MENU = 6;
+	public static final int TEXT_NEXT = 7;
+	public static final int TEXT_BACK = 8;
 	
+	private static ArrayList<AchievementBlock> blocks = new ArrayList<AchievementBlock>();
 	public static void complitedAchievements(int id) {
+		if(achievements[id])
+			return;
+		blocks.add(new AchievementBlock(id, true));
 		achievements[id] = true;
 	}
 	
+	private static String getLanguage() {
+		String l = System.getProperty("user.language");
+		if(l.equals("ru"))
+			return l;
+		else
+			return "en";
+	}
+
+	public static void drawAchievementBlock(Graphics2D gf) {
+		if(blocks.size() > 0)
+			blocks.get(0).draw2(gf);
+	}
+	
+	public static void updateAchievementBlock() {
+		if(blocks.size() > 0)
+			blocks.get(0).update();
+		for (int i = 0; i < blocks.size(); i++) {
+			if(blocks.get(i).needRemove()) {
+				blocks.remove(i);
+			}
+		}
+	}
+
 	public static Long lastSeed = null;
 
 	public static float screenShake = 0.0f;
@@ -39,6 +83,7 @@ public class GameData {
 	// FIXME:
 	public static boolean lavaLight = false; // new BI
 	
+	public static int consecutive_wins = 0;
 	
 	public static void save() {
 		MyFile.checkSavesFolder();
@@ -65,7 +110,7 @@ public class GameData {
 		return a;
 	}
 	
-	private void getTexts() {
-		
+	private static String[] loadTexts() {
+		return MyFile.readFileInResource("/text/texts." + language).split("\n");
 	}
 }
