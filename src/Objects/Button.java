@@ -21,6 +21,13 @@ public class Button {
 	double bv = 0;
 	String fontName = "Comic Sans MS";
 	
+	public boolean chageSize = true;
+	public void setFontSize(int fontSize) {
+		this.fontSize = fontSize;
+	}
+	public void setText(String text) {
+		this.text = text;
+	}
 
 	public Button(String text, int bx, int by) {
 		this.text = text;
@@ -29,19 +36,20 @@ public class Button {
 	}
 	
 	public void draw(Graphics2D gf) {
-		gf.setFont(new Font(fontName, Font.PLAIN, (int) ((fontSize+bv)*GamePanel.scalefull)));
+		gf.setFont(new Font(fontName, Font.PLAIN, (int) ((fontSize+(chageSize ? bv : 0))*GamePanel.scalefull)));
 		bw = gf.getFontMetrics().stringWidth(text);
 		bh = gf.getFont().getSize();
 		maxBw = (int) (gf.getFontMetrics().stringWidth(text) + 2*GamePanel.scalefull);
 		drawString(gf, text, (int) (bx - bw/2), by);
 	}
 
-	Color ufc = Color.GRAY;
+	Color ufc = Color.DARK_GRAY;
+	Color sc = Color.GRAY;
 	Color fc = Color.WHITE;
 	Color bc = Color.BLACK;
 	
 	private void drawString(Graphics2D gf, String str, int x, int y) {
-		gf.setColor(clickable ? fc : ufc);
+		gf.setColor(clickable ? (!chageSize && onButton) ?  sc : fc : ufc);
 		gf.drawString(str, x, y);
 		gf.setColor(bc);
 		for (int xx = -1; xx < 2; xx++) {

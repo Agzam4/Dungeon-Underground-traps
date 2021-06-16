@@ -34,7 +34,7 @@ public class MenuStage extends Stage {
 			myButtons[i] = new Button(GameData.texts[i], 0, 0);
 		}
 		myButtons[BOOSTS].clickable = false;
-		myButtons[SETTINGS].clickable = false;
+//		myButtons[SETTINGS].clickable = false;
 		pop = new MyAudio("/sounds/pop-1.wav");
 		click = new MyAudio("/sounds/pop-2.wav");
 		maneger = m;
@@ -65,7 +65,7 @@ public class MenuStage extends Stage {
 		drawLines(gf, " Dungeon ", (int) ((1.5)*dist));
 		
 		gf.setPaint(GameOverStage.getGradient(Color.DARK_GRAY));
-		gf.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+		gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 		
 	}
 	
@@ -173,6 +173,7 @@ public class MenuStage extends Stage {
 					maneger.loadStage(Maneger.ACHIEVEMENTS);
 					break;
 				case EXIT:
+					GameData.save();
 					System.exit(0);
 					break;
 				default:

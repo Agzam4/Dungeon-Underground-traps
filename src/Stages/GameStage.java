@@ -2,6 +2,7 @@ package Stages;
 
 import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 import Main.GamePanel;
+import Objects.Button;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
@@ -24,7 +26,7 @@ public class GameStage extends Stage {
 	GameOverStage overStage;
 
 	Maneger maneger;
-	MyAudio music;
+	static MyAudio music;
 
 	private static final int PLATE_DOWN = 0;
 	private static final int PLATE_UP = 1;
@@ -34,15 +36,18 @@ public class GameStage extends Stage {
 	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close"};
 	MyAudio sounds[] = new MyAudio[soundsNames.length];
 	
-	
+	long times;
 	
 	public GameStage(Maneger maneger, Long seed) {
+		times = System.nanoTime() - GameData.totalTime*1_000_000;
 		this.maneger = maneger;
 		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+		music.setVolume(GameData.audio[GameData.AUDIO_MUSIC]/2f);
 		music.play(-1);
 		
 		for (int i = 0; i < sounds.length; i++) {
 			sounds[i] = new MyAudio("/sounds/" + soundsNames[i] + ".wav");
+			sounds[i].setVolume(GameData.audio[GameData.AUDIO_SOUNDS]/2f);
 		}
 		
 		isGameOver = false;
@@ -78,8 +83,12 @@ public class GameStage extends Stage {
 				id++;
 			}
 		}
-		
-		
+
+		pButtons[0] = new Button("Back Remse", 0, 0);
+		pButtons[1] = new Button("Game Over", 0, 0);
+		pButtons[2] = new Button(GameData.texts[GameData.TEXT_ACHIEVEMENTS], 0, 0);
+		pButtons[3] = new Button(GameData.texts[GameData.TEXT_SETTINGS], 0, 0);
+		pButtons[4] = new Button(GameData.texts[GameData.TEXT_MENU], 0, 0);
 	}
 
 	double fx;
@@ -106,13 +115,23 @@ public class GameStage extends Stage {
 	int gold = 0;
 	int diamonds = 0;
 	
+	Button[] pButtons = new Button[5];
+	
+	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
+
 		GameData.drawAchievementBlock(gf);
-		if(isGameOver) {
-			overStage.draw(g, gf);
-			return;
+		
+		if(paused && !isGameOver) {
+			for (int i = 0; i < pButtons.length; i++) {
+				pButtons[i].draw(gf);
+			}
+			gf.setColor(new Color(0,0,0,200));
+			gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 		}
+		gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) (5*GamePanel.scalefull)));
+		
 		
 		countCrushers = 0;
 
@@ -212,7 +231,11 @@ public class GameStage extends Stage {
 				
 			}
 		}
-		
+
+		if(isGameOver) {
+			overStage.draw(g, gf);
+			return;
+		}
 		
 		player.draw(g);
 		
@@ -255,6 +278,7 @@ public class GameStage extends Stage {
 		gf.drawString("" + gold,
 				(int) ((11)*GamePanel.scalefull),
 				(int) ((18)*GamePanel.scalefull));//+gf.getFont().getSize()/2
+		
 	}
 	
 	RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
@@ -294,6 +318,46 @@ public class GameStage extends Stage {
 			gradientT = 0;
 			return;
 		}
+		
+		if(paused) {
+			updateVolume();
+			int dist = GamePanel.frameH/(pButtons.length + 4);
+			for (int i = 0; i < pButtons.length; i++) {
+				pButtons[i].setPosition(GamePanel.frameW/2, dist*(i+2));
+				pButtons[i].update();
+				if(pButtons[i].isClicked()) {
+					switch (i) {
+					case 0:
+						paused = false;
+						break;
+					case 1:
+						isGameOver = true;
+						radius = (radius-1)*0.8f + 1;
+						gradientT = 0;
+						break;
+					case 2:
+						maneger.loadStage(Maneger.ACHIEVEMENTS);
+						break;
+					case 3:
+						maneger.loadStage(Maneger.SETTINGS);
+						break;
+					case 4:
+						music.stop();
+						music.close();
+						isGameOver = true;
+						radius = (radius-1)*0.8f + 1;
+						gradientT = 0;
+						maneger.loadStage(Maneger.MENU);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			return;
+		}
+		
+		GameData.totalTime = (System.nanoTime()-times)/1_000_000;
 		
 		
 		radius = (radius-1)*0.8f + 1;
@@ -385,43 +449,42 @@ public class GameStage extends Stage {
 		}
 	}
 	
+	private void setKeys(int key, boolean b) {
+		if(key == GameData.control[GameData.KEY_JUMP])
+			player.setVK_UP(b);
+		if(key == GameData.control[GameData.KEY_DOWN])
+			player.setVK_DOWN(b);
+		if(key == GameData.control[GameData.KEY_RIGHT])
+			player.setVK_RIGHT(b);
+		if(key == GameData.control[GameData.KEY_LEFT])
+			player.setVK_LEFT(b);
+	}
+	
 	@Override
 	protected void keyPressed(KeyEvent e) {
-		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-			player.setVK_UP(true);
-			break;
-		case KeyEvent.VK_DOWN:
-			player.setVK_DOWN(true);
-			break;
-		case KeyEvent.VK_RIGHT:
-			player.setVK_RIGHT(true);
-			break;
-		case KeyEvent.VK_LEFT:
-			player.setVK_LEFT(true);
-			break;
-		default:
-			break;
-		}
+		setKeys(e.getKeyCode(),true);
+//		switch (e.getKeyCode()) {
+//		case :
+//			break;
+//		case KeyEvent.VK_DOWN:
+//			player.setVK_DOWN(true);
+//			break;
+//		case KeyEvent.VK_RIGHT:
+//			player.setVK_RIGHT(true);
+//			break;
+//		case KeyEvent.VK_LEFT:
+//			player.setVK_LEFT(true);
+//			break;
+//		default:
+//			break;
+//		}
 	}
 
 	@Override
 	protected void keyReleased(KeyEvent e) {
-		switch (e.getKeyCode()) {
-		case KeyEvent.VK_UP:
-			player.setVK_UP(false);
-			break;
-		case KeyEvent.VK_DOWN:
-			player.setVK_DOWN(false);
-			break;
-		case KeyEvent.VK_RIGHT:
-			player.setVK_RIGHT(false);
-			break;
-		case KeyEvent.VK_LEFT:
-			player.setVK_LEFT(false);
-			break;
-		default:
-			break;
+		setKeys(e.getKeyCode(),false);
+		if(e.getKeyCode() == GameData.control[GameData.KEY_PAUSE]) {
+			paused = !paused;
 		}
 	}
 	
@@ -434,11 +497,24 @@ public class GameStage extends Stage {
 		level.deleteTraps(x, y);
 	}
 
+	boolean paused = false;
+
 	@Override
 	protected void releasedAll() {
 		player.setVK_UP(false);
 		player.setVK_DOWN(false);
 		player.setVK_RIGHT(false);
 		player.setVK_LEFT(false);
+	}
+	
+	public static void updateMusicVolume() {
+		if(music != null)
+		music.setVolume(GameData.audio[GameData.AUDIO_MUSIC]/2f);
+	}
+	public void updateVolume() {
+		updateMusicVolume();
+		for (int ii = 0; ii < sounds.length; ii++) {
+			sounds[ii].setVolume(GameData.audio[GameData.AUDIO_SOUNDS]/2f);
+		}
 	}
 }

@@ -52,9 +52,13 @@ public class GameOverStage extends Stage {
 		boolean[] go = player.getGameOvers();
 		isWin = go[0];
 		audio = new MyAudio("/music/GameOver.wav");
-		if(!isWin)
+		GameData.totalLevels++;
+		if(!isWin) {
 			audio.play(0);
+			audio.setVolume(GameData.audio[GameData.AUDIO_MUSIC]/2f);
+		}
 		if(go[0]) {
+			GameData.totalWins++;
 //		for (int i = 0; i < g + 25; i++) {
 //			golds.add(new Gold(0));
 //			golds.get(i).setPosition(GamePanel.frameW/3, (int) (15*GamePanel.scalefull));
@@ -77,6 +81,8 @@ public class GameOverStage extends Stage {
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_BAG_OF_GOLD);
 			if(diamonds == generator.diamonds)
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_BAG_OF_DIAMONDS);
+			GameData.totalGold += gold;
+			GameData.totalDiamonds += diamonds;
 		}else {
 			GameData.consecutive_wins = 0;
 			gameOver = "You lost from ";
@@ -116,19 +122,19 @@ public class GameOverStage extends Stage {
 		gf.setPaint(getGradient(isWin ? new Color(255,255,0):Color.WHITE));
 		drawText(gf, gameOver, 88);
 
-		fillRect(gf, (int)(d-15*GamePanel.scalefull));
+//		fillRect(gf, (int)(d-15*GamePanel.scalefull));
 		
-		if(GamePanel.frameW - d < 5) {
-			int a = (int) ((GamePanel.frameW - d)*2)/2;
-			if(a < 0) a = 0;
-			if(a > 256) a = 256;
-			gf.setColor(new Color(200,200,200, a));
-		}else {
-			gf.setColor(new Color(200,200,200));
-		}
-		
-		int myX = (int) (GamePanel.frameW/2 - d/2 + 8*GamePanel.scalefull);
-		gf.drawLine(myX, (int) (GamePanel.scalefull*100),myX, (int) (GamePanel.scalefull*160));
+//		if(GamePanel.frameW - d < 5) {
+//			int a = (int) ((GamePanel.frameW - d)*2)/2;
+//			if(a < 0) a = 0;
+//			if(a > 256) a = 256;
+//			gf.setColor(new Color(200,200,200, a));
+//		}else {
+//			gf.setColor(new Color(200,200,200));
+//		}
+//		
+//		int myX = (int) (GamePanel.frameW/2 - d/2 + 8*GamePanel.scalefull);
+//		gf.drawLine(myX, (int) (GamePanel.scalefull*100),myX, (int) (GamePanel.scalefull*160));
 		gf.setPaint(getGradient(isWin ? new Color(255,255,0):Color.WHITE));
 		
 		drawLines(gf, (int)(d), 88);
@@ -187,7 +193,7 @@ public class GameOverStage extends Stage {
 		//+gf.getFont().getSize()/2
 //		drawLines(gf, "  You lose of" + gameOver, 100);
 
-		gf.setPaint(getGradient(Color.DARK_GRAY));
+		gf.setPaint(getGradient(new Color(0,0,0,100)));
 		gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 		gf.setPaint(Color.WHITE);
 		gf.dispose();
@@ -203,7 +209,7 @@ public class GameOverStage extends Stage {
 	private void fillRect(Graphics2D gf, int w) {
 //		gf.setComposite(alpha);
 //		gf.setColor(new Color(0,0,0,0));
-		gf.setPaint(getGradient(Color.DARK_GRAY));
+		gf.setPaint(getGradient(new Color(0,0,0,100)));
 		gf.fillRect(GamePanel.frameW/2 + w/2, 0, GamePanel.frameW, GamePanel.frameH);
 		gf.fillRect(0, 0, GamePanel.frameW/2 - w/2, GamePanel.frameH);
 //		gf.setComposite(normal);

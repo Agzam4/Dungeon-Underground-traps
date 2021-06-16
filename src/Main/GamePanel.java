@@ -34,7 +34,7 @@ public class GamePanel extends JPanel implements KeyListener {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static final double quality = 5;
+	public static double quality = 5;
 //	public double moveX;
 //	public double moveY;
 
@@ -48,13 +48,14 @@ public class GamePanel extends JPanel implements KeyListener {
 	public static BufferedImage gamefull;
 	public static int gameX;
 	public static int gameY;
+	public static boolean running;
 	
 	public static boolean stop = false;
 
 	private static int FPS = 60;
 	private static long sleep = 50;//1000 / FPS;
 	
-	Maneger maneger;
+	static Maneger maneger = new Maneger(Maneger.MENU);
 	
 	public GamePanel() {
 		setBackground(Color.BLACK);
@@ -78,15 +79,14 @@ public class GamePanel extends JPanel implements KeyListener {
 	}
 	
 	public void run(DungeonJFrame frame) {
+		running = true;
 		calculateScreen(frame);
-		
-		maneger = new Maneger(Maneger.MENU); // FIXME
 
 		Thread update = new Thread() {
 			public void run() {
 				long start;
 				long wait;
-				while (true) {
+				while (running) {
 					start = System.nanoTime();
 					updtae();
 					if(!GameData.skipFrames) {
@@ -98,6 +98,10 @@ public class GamePanel extends JPanel implements KeyListener {
 						Thread.sleep(wait);
 					} catch (InterruptedException e) {
 					}
+					if(quality != GameData.quality) {
+						quality = GameData.quality;
+						calculateScreen(frame);
+					}
 				}
 			}
 		};
@@ -106,7 +110,7 @@ public class GamePanel extends JPanel implements KeyListener {
 			public void run() {
 				long start;
 				long wait;
-				while (true) {
+				while (running) {
 					if(GameData.skipFrames) {
 						start = System.nanoTime();
 						draw();
@@ -215,6 +219,9 @@ public class GamePanel extends JPanel implements KeyListener {
 	
 	private void draw() {
 		Graphics2D thisG = (Graphics2D) getGraphics();
+		if(thisG == null) {
+			return;
+		}
 		if(stop) {
 			if(!pausedIsDrawed) {
 				Graphics2D a = (Graphics2D) all.getGraphics();

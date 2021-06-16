@@ -158,6 +158,7 @@ public class AchievementBlock {
 	
 	public void update() {
 		if(isNew && time == 0) {
+			audio.setVolume(GameData.audio[GameData.AUDIO_ACHIEVEMENTS]/2f);
 			audio.play(0);
 		}
 		time++;

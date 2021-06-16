@@ -15,21 +15,36 @@ public class Maneger {
 	public final static int SETTINGS = 4;
 	
 
-	public static int selected = 0;
+	public int selected = 0;
+	public int lastSelected = 0;
 	
 	private Stage[] stages = new Stage[5];
 	
 	public Maneger(int stageID) {
+		MouseController.isMousePressed = false;
 		loadStage(stageID);
 	}
 	
 	public void setGameStage(long seed) {
+		MouseController.isMousePressed = false;
 		selected = GAME;
 		stages[GAME] = new GameStage(this, seed);
 	}
 	
+	public void setLast() {
+		MouseController.isMousePressed = false;
+		selected = lastSelected;
+	}
+	public void setSelected(int selected) {
+		MouseController.isMousePressed = false;
+		lastSelected = selected;
+		this.selected = selected;
+	}
+	
 	public void loadStage(int stageID) {
 		MouseController.isMousePressed = false;
+		releasedAll();
+		lastSelected = selected;
 		selected = stageID;
 		switch (stageID) {
 		case MENU:
@@ -53,10 +68,12 @@ public class Maneger {
 	}
 
 	public void draw(Graphics2D g, Graphics2D gf) {
+		if(stages[selected] != null)
 		stages[selected].draw(g, gf);
 	}
 	
 	public void update() {
+		if(stages[selected] != null)
 		stages[selected].update();
 	}
 
@@ -73,6 +90,7 @@ public class Maneger {
 	}
 
 	public void releasedAll() {
+		if(stages[selected] != null)
 		stages[selected].releasedAll();
 	}
 }

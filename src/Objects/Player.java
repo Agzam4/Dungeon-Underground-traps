@@ -72,6 +72,9 @@ public class Player extends GameObject {
 
 	@Override
 	public void update() {
+		cx = 5*GamePanel.quality;//-0.1;
+		cy = 5*GamePanel.quality;
+		
 		if(isVK_RIGHT)	vx += 1;
 		if(isVK_LEFT) vx -= 1;
 		
@@ -145,10 +148,11 @@ public class Player extends GameObject {
 		y = (int)(y/tilesize) * tilesize;
 		vx = 0;
 		vy = 0;
-		level.deleteTraps((int)(x/tilesize), (int) (y/tilesize));
 		GameStage.radius = 0;
 		if(hp < 1) {
 			isGameOver = true;
+		}else {
+			level.deleteTraps((int)(x/tilesize), (int) (y/tilesize));
 		}
 		System.out.println("GameOver: " + gameover);
 	}

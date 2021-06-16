@@ -46,7 +46,7 @@ public class AchievementStage extends Stage {
 		back.setPosition(GamePanel.frameW/2, GamePanel.frameH/6*5);
 		back.update();
 		if(back.isClicked()) {
-			maneger.loadStage(Maneger.MENU);
+			maneger.setLast();
 		}
 		for (int i = 0; i < achievements.length; i++) {
 			achievements[i].update();
