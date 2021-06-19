@@ -19,7 +19,7 @@ public class AchievementBlock {
 	static BufferedImage bg = getImage("bg");
 	static BufferedImage fg = getImage("fg");
 	static BufferedImage imgs = getImage("img");
-	static String achievementsText[] = MyFile.readFileInResource("/text/achievements." + System.getProperty("user.language")).split("\n");
+	static String achievementsText[] = MyFile.readFileInResource("/text/achievements." + GameData.language).split("\n");
 	MyAudio audio;
 	
 	int x, y, id;

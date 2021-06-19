@@ -24,11 +24,14 @@ public class Player extends GameObject {
 	double cx = 5*GamePanel.quality;//-0.1;
 	double cy = 5*GamePanel.quality;
 	
-	boolean gameOvers[] = new boolean[4];
+	boolean gameOvers[] = new boolean[6];
 	/**
-	 * 0 - Шипы
-	 * 1 - Падающие шипы
-	 * 2 - Лава
+	 * 0 - Победа
+	 * 1 - Шипы
+	 * 2 - Падающие шипы
+	 * 3 - Лава
+	 * 4 - Кнопка
+	 * 5 - Дротик
 	 */
 	String gameover = "";
 	
@@ -208,6 +211,22 @@ public class Player extends GameObject {
 		Rectangle hitbox = new Rectangle((int)getCutX(x), (int)getCutY(y), 10, 10);
 		return hitbox.intersects(level.getHitbox((int)(getCutX(x+xx)/tilesize), (int)(getCutY(y+yy)/tilesize), 3));
 	}
+	public Rectangle getHitbox() {
+		return new Rectangle((int)getCutX(x), (int)getCutY(y), 10, 10);
+	}
+	
+	public boolean intersects(Rectangle hitbox1) {
+		//level.getHitbox((int)(x/tilesize), (int)(y/tilesize));
+		return hitbox1.intersects(new Rectangle((int)x, (int)y, 10, 10))
+				||
+				hitbox1.intersects(new Rectangle((int)x, (int)y+10, 10, 10))
+				||
+				hitbox1.intersects(new Rectangle((int)x+10, (int)y, 10, 10))
+				||
+				hitbox1.intersects(new Rectangle((int)x+10, (int)y+10, 10, 10))
+				;
+	}
+	
 
 	private boolean isWall(int type) {
 		Rectangle hitbox = new Rectangle((int)getCutX(x), (int)getCutY(y), 10, 10);
@@ -287,5 +306,13 @@ public class Player extends GameObject {
 	
 	public boolean[] getGameOvers() {
 		return gameOvers;
+	}
+
+	public void setButttonGameOver() {
+		gameOvers[4] = true;
+	}
+	
+	public void setGameOver(int id) {
+		gameOvers[id] = true;
 	}
 }

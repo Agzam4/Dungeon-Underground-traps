@@ -98,6 +98,13 @@ public class GameOverStage extends Stage {
 				gameOver += "lava";
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_LAVA);
 			}
+			if(go[4])
+				gameOver += "button";
+
+			if(go[5]) {
+				gameOver += "dart";
+//				GameData.complitedAchievements(GameData.ACHIEVEMENTS_DART);
+			}
 		}
 		
 		

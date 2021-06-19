@@ -26,12 +26,12 @@ public class SettingsStage extends Stage {
 	int selected = 0;
 	
 	Button settings[] = new Button[4];
-	String txt[] = {"Game", "Graphics", "Audio", "Control"};
+//	String txt[] = {"Game", "Graphics", "Audio", "Control"};
 	
 	public SettingsStage(Maneger maneger) {
 		this.maneger = maneger;
 		for (int i = 0; i < settings.length; i++) {
-			settings[i] = new Button(txt[i], 0, 0);
+			settings[i] = new Button(GameData.texts[i+9], 0, 0);
 			settings[i].chageSize = false;
 		}
 		for (int i = 0; i < audioButtons.length; i++) {
@@ -85,10 +85,10 @@ public class SettingsStage extends Stage {
 	Button setControl[] = new Button[5];
 	int maxXControl = 0;
 	
-	Button deleteprogress = new Button("Delete progress", 0, 0);
+	Button deleteprogress = new Button(GameData.texts[GameData.TEXT_DELETE_PROGRESS], 0, 0);
 	
 	private void drawControl(Graphics2D gf) {
-		drawCenterString(gf, "Control", 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_CONTROL], 1, Color.WHITE, Color.BLACK);
 		setSize(gf, 10);
 		maxXControl = 0;
 
@@ -98,18 +98,23 @@ public class SettingsStage extends Stage {
 //		updateMaxXControl(gf.getFontMetrics().stringWidth("Right: ")+ gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[3]))/2);
 //		updateMaxXControl(gf.getFontMetrics().stringWidth("Left: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[4]))/2);
 
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth("Press key to set")/2);
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[0]))/2);
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[1]))/2);
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[2]))/2);
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[3]))/2);
-		updateMaxXControl(gf.getFontMetrics().stringWidth("Pause: ") + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[4]))/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PAUSE]) + gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET])/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_UP]) + gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET])/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_LEFT]) + gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET])/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_DOWN]) + gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET])/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_RIGHT]) + gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET])/2);
 		
-		drawString(gf, "Pause: ", 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Up: ", 15, 				35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Left: ", 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Down: ", 15, 			55, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Right: ", 15, 			65, Color.LIGHT_GRAY, Color.BLACK);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_PAUSE]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[0]))/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_UP]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[1]))/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_LEFT]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[2]))/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_DOWN]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[3]))/2);
+		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_RIGHT]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[4]))/2);
+		
+		drawString(gf, GameData.texts[GameData.TEXT_PAUSE], 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_UP], 15, 				35, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_LEFT], 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_DOWN], 15, 			55, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_RIGHT], 15, 			65, Color.LIGHT_GRAY, Color.BLACK);
 		for (int i = 0; i < setControl.length; i++) {
 			setControl[i].draw(gf);
 		}
@@ -127,39 +132,39 @@ public class SettingsStage extends Stage {
 	Button plus = new Button("+", 0, 0);
 	Button minus = new Button("-", 0, 0);
 	private void drawGraphics(Graphics2D gf) {
-		drawCenterString(gf, "Graphics", 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_GRAPHICS], 1, Color.WHITE, Color.BLACK);
 		setSize(gf, 10);
-		sgqt = gf.getFontMetrics().stringWidth("Game quality: " + GameData.quality) + 25 + sgqm;
-		drawString(gf, "Game quality: " + GameData.quality, 25 + sgqm, 25, Color.LIGHT_GRAY, Color.BLACK);
+		sgqt = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality) + 25 + sgqm;
+		drawString(gf, GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality, 25 + sgqm, 25, Color.LIGHT_GRAY, Color.BLACK);
 		plus.draw(gf);
 		minus.draw(gf);
 		setSize(gf, 7);
-		drawString(gf, "All the textures in the game are drawn by me", 15, 45, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_GRAPHICS_INFO], 15, 45, Color.GRAY, Color.BLACK);
 	}
 	
-	String audioV[] = {"off", "quietly", "on"};
+	String audioV[] = (GameData.texts[GameData.TEXT_VOLUME] + "/0%/50%/100%").split("/");
 	Button audioButtons[] = new Button[3];
 	int audioW[] = new int[3];
 	
 	private void drawAudio(Graphics2D gf) {
-		drawCenterString(gf, "Audio", 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_AUDIO], 1, Color.WHITE, Color.BLACK);
 		setSize(gf, 10);
-		audioW[0] = gf.getFontMetrics().stringWidth("Music: ");
-		audioW[1] = gf.getFontMetrics().stringWidth("Sounds: ");
-		audioW[2] = gf.getFontMetrics().stringWidth("Sound of achievement: ");
+		audioW[0] = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_MUSIC]);
+		audioW[1] = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_SOUNDS]);
+		audioW[2] = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_SOUND_OF_ACHIEVEMENT]);
 		audioW[0] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[0]])/2;
 		audioW[1] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[1]])/2;
 		audioW[2] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[2]])/2;
-		drawString(gf, "Music: ", 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Sounds: ", 15, 			35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, "Sound of achievement: ", 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_MUSIC], 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_SOUNDS], 15, 			35, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_SOUND_OF_ACHIEVEMENT], 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
 		for (int i = 0; i < audioButtons.length; i++) {
 			audioButtons[i].draw(gf);
 		}
 
 		setSize(gf, 7);
-		drawString(gf, "This game uses natural sounds recorded by me using a voice recorder.", 15, 65, Color.GRAY, Color.BLACK);
-		drawString(gf, "Music & Sound achievements made by me in jummbus.bitbucket.io & beepbox.co", 15, 75, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_0], 15, 65, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_1], 15, 75, Color.GRAY, Color.BLACK);
 		
 	}
 	
@@ -179,14 +184,14 @@ public class SettingsStage extends Stage {
 		String p = "";
 		if(GameData.totalLevels != 0)
 			p = " (" + GameData.totalWins*100/GameData.totalLevels + "%)";
-		drawCenterString(gf, "Game", 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_GAME], 1, Color.WHITE, Color.BLACK);
 		setSize(gf, 10);
-		drawString(gf, " Time: " + formattedDate, 5, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, " Levels: " + GameData.totalLevels, 5, 		35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, " Wins: " + GameData.totalWins + p, 5, 			45, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, " Gold: " + GameData.totalGold, 5, 			55, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, " Diamonds: " + GameData.totalDiamonds, 5, 	65, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, " Achievements: " + achievements + "/" + GameData.achievements.length, 5, 75, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_TIME] + formattedDate, 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_LEVELS] + GameData.totalLevels, 15, 		35, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_WINS] + GameData.totalWins + p, 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_GOLD] + GameData.totalGold, 15, 			55, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_DIAMONDS] + GameData.totalDiamonds, 15, 	65, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_ACHIEVEMENTS2] + achievements + "/" + GameData.achievements.length, 15, 75, Color.LIGHT_GRAY, Color.BLACK);
 		fullscreen.draw(gf);
 		deleteprogress.draw(gf);
 	}
@@ -233,13 +238,13 @@ public class SettingsStage extends Stage {
 		}
 
 		if(selected == 0) {
-			fullscreen.setText(GameData.fullscreen ? "unfullscreen" : "fullscreen");
+			fullscreen.setText(GameData.fullscreen ? GameData.texts[GameData.TEXT_UNFULLSCREEN] : GameData.texts[GameData.TEXT_FULLSCREEN]);
 			fullscreen.setPosition(sx + 15 + fullscreen.getBw()/2, 105*sh + 5);
 			fullscreen.setFontSize(10);
 			fullscreen.update();
 			if(fullscreen.isClicked()) {
 				GameData.fullscreen = !GameData.fullscreen;
-				JOptionPane.showMessageDialog(null, "Reload game");
+				JOptionPane.showMessageDialog(null, GameData.texts[GameData.TEXT_RELOAD_GAME]);
 				GameData.save();
 				System.exit(0);
 			}
@@ -274,7 +279,7 @@ public class SettingsStage extends Stage {
 			for (int i = 0; i < setControl.length; i++) {
 				setControl[i].chageSize = false;
 				setControl[i].clickable = setControlID == -1;
-				setControl[i].setText(setControlID == i ? "Press key to set" : KeyEvent.getKeyText(GameData.control[i]));
+				setControl[i].setText(setControlID == i ? GameData.texts[GameData.TEXT_PRESS_KEY_TO_SET] : KeyEvent.getKeyText(GameData.control[i]));
 				setControl[i].setFontSize(10);
 				setControl[i].setPosition(sx + 35 + maxXControl, (25 + i*10 + 10)*sh + 5);
 				setControl[i].update();

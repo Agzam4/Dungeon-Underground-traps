@@ -9,11 +9,13 @@ import java.awt.RadialGradientPaint;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
 import Main.GamePanel;
 import Objects.Button;
+import Objects.Dart;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
@@ -32,8 +34,13 @@ public class GameStage extends Stage {
 	private static final int PLATE_UP = 1;
 	private static final int DOOR_OPEN = 2;
 	private static final int DOOR_CLOSE = 3;
+	private static final int DART = 4;
 	
-	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close"};
+	
+	ArrayList<Dart> darts = new ArrayList<Dart>();
+	int dartsTime = 0;
+	
+	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close", "dart"};
 	MyAudio sounds[] = new MyAudio[soundsNames.length];
 	
 	long times;
@@ -84,8 +91,8 @@ public class GameStage extends Stage {
 			}
 		}
 
-		pButtons[0] = new Button("Back Remse", 0, 0);
-		pButtons[1] = new Button("Game Over", 0, 0);
+		pButtons[0] = new Button(GameData.texts[GameData.TEXT_RESUME], 0, 0);
+		pButtons[1] = new Button(GameData.texts[GameData.TEXT_FAST_LOSE], 0, 0);
 		pButtons[2] = new Button(GameData.texts[GameData.TEXT_ACHIEVEMENTS], 0, 0);
 		pButtons[3] = new Button(GameData.texts[GameData.TEXT_SETTINGS], 0, 0);
 		pButtons[4] = new Button(GameData.texts[GameData.TEXT_MENU], 0, 0);
@@ -102,7 +109,7 @@ public class GameStage extends Stage {
 	public static int vh = GamePanel.getCountHeight()/2;
 	
 	
-	Player player;
+	public Player player;
 	public static boolean isGameOver = false;
 	
 	int time = 0;
@@ -146,6 +153,10 @@ public class GameStage extends Stage {
 
 		g.setColor(new Color(43,43,43));
 		g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+		
+		for (Dart dart : darts) {
+			dart.draw(g);
+		}
 //
 //		int tileX = (int) (mapX/tilesize);
 //		int tileY = (int) (mapY/tilesize);
@@ -233,7 +244,8 @@ public class GameStage extends Stage {
 		}
 
 		if(isGameOver) {
-			overStage.draw(g, gf);
+			if(overStage != null)
+				overStage.draw(g, gf);
 			return;
 		}
 		
@@ -313,6 +325,7 @@ public class GameStage extends Stage {
 		GameData.updateAchievementBlock();
 		
 		if(isGameOver) {
+			if(overStage != null)
 			overStage.update();
 			radius = (radius-1)*0.8f + 1;
 			gradientT = 0;
@@ -331,9 +344,11 @@ public class GameStage extends Stage {
 						paused = false;
 						break;
 					case 1:
-						isGameOver = true;
-						radius = (radius-1)*0.8f + 1;
-						gradientT = 0;
+						paused = false;
+						player.setButttonGameOver();
+						player.isGameOver = true;
+//						radius = (radius-1)*0.8f + 1;
+//						gradientT = 0;
 						break;
 					case 2:
 						maneger.loadStage(Maneger.ACHIEVEMENTS);
@@ -387,7 +402,16 @@ public class GameStage extends Stage {
 			}
 		}
 		
-
+		
+		for (int i = 0; i < darts.size(); i++) {
+			darts.get(i).update();
+			if(darts.get(i).isHit()) {
+				darts.remove(i);
+			}
+		}
+		if(dartsTime > 0)
+			dartsTime--;
+		
 		player.update();
 		if(player.isGameOver && !isGameOver) {
 			isGameOver = true;
@@ -427,6 +451,13 @@ public class GameStage extends Stage {
 						level.setTile(x+tileX+1, y+tileY-1, level.BLOCK_DOOR_OPEN_UP);
 					}else {
 						sounds[PLATE_DOWN].play(0);
+					}
+					if(level.getBlock(x+tileX-5, y+tileY) == level.BLOCK_DART) {
+						if(dartsTime < 1) {
+							sounds[DART].play(0);
+							dartsTime = 50;
+							darts.add(new Dart(this, x+tileX-5, y+tileY));
+						}
 					}
 				}
 				if(level.BLOCK_PLATE_ACTIVATE == t && !isHit) {

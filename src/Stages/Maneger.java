@@ -78,10 +78,12 @@ public class Maneger {
 	}
 
 	public void keyPressed(KeyEvent e) {
+		if(stages[selected] != null)
 		stages[selected].keyPressed(e);
 	}
 
 	public void keyReleased(KeyEvent e) {
+		if(stages[selected] != null)
 		stages[selected].keyReleased(e);
 	}
 	

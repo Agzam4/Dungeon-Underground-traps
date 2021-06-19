@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 
@@ -50,6 +51,36 @@ public class GameData {
 	public static final int TEXT_MENU = 6;
 	public static final int TEXT_NEXT = 7;
 	public static final int TEXT_BACK = 8;
+	public static final int TEXT_GAME = 9;
+	public static final int TEXT_GRAPHICS = 10;
+	public static final int TEXT_AUDIO = 11;
+	public static final int TEXT_CONTROL = 12;
+	public static final int TEXT_TIME = 13;
+	public static final int TEXT_LEVELS = 14;
+	public static final int TEXT_WINS = 15;
+	public static final int TEXT_GOLD = 16;
+	public static final int TEXT_DIAMONDS = 17;
+	public static final int TEXT_ACHIEVEMENTS2 = 18;
+	public static final int TEXT_FULLSCREEN = 19;
+	public static final int TEXT_UNFULLSCREEN = 20;
+	public static final int TEXT_RELOAD_GAME = 21;
+	public static final int TEXT_DELETE_PROGRESS = 22;
+	public static final int TEXT_GAME_QUALITY = 23;
+	public static final int TEXT_GRAPHICS_INFO = 24;
+	public static final int TEXT_MUSIC = 25;
+	public static final int TEXT_SOUNDS = 26;
+	public static final int TEXT_SOUND_OF_ACHIEVEMENT = 27;
+	public static final int TEXT_VOLUME = 28;
+	public static final int TEXT_AUDIO_INFO_0 = 29;
+	public static final int TEXT_AUDIO_INFO_1 = 30;
+	public static final int TEXT_PAUSE = 31;
+	public static final int TEXT_UP = 32;
+	public static final int TEXT_LEFT = 33;
+	public static final int TEXT_DOWN = 34;
+	public static final int TEXT_RIGHT = 35;
+	public static final int TEXT_PRESS_KEY_TO_SET = 36;
+	public static final int TEXT_RESUME = 37;
+	public static final int TEXT_FAST_LOSE = 38;
 	
 	private static ArrayList<AchievementBlock> blocks = new ArrayList<AchievementBlock>();
 	public static void complitedAchievements(int id) {

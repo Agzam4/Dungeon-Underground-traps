@@ -314,6 +314,13 @@ public class GamePanel extends JPanel implements KeyListener {
 		scale = (int) Math.ceil(frameH/16f/11f)/quality;
 		game = new BufferedImage((int) ((int) Math.ceil(frameW/scale/tq/2f)*tq*2f + tq),
 				(int) (Math.ceil(16*11*quality/tq)*tq), BufferedImage.TYPE_INT_RGB);
+		/**
+		 * TYPE_USHORT_555_RGB	// ROUND
+		 * TYPE_BYTE_INDEXED	// PIXEL
+		 * TYPE_BYTE_GRAY		// GRAY
+		 * TYPE_BYTE_BINARY		// W&B
+		 */
+				
 		gamefull = new BufferedImage(frameW, frameH, BufferedImage.TYPE_INT_ARGB);
 		all = new BufferedImage(frameW, frameH, BufferedImage.TYPE_INT_RGB);
 		gameX = (int) (frameW - Math.floor(game.getWidth()/16)*scale*16)/2;

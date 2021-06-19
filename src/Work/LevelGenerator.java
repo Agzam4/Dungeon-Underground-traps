@@ -1,6 +1,8 @@
 package Work;
 
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
@@ -49,7 +51,7 @@ public class LevelGenerator {
 
 	static final float RARE_SPYKY = 1f/7f;//7
 	static final float RARE_DART = 1f/5f;//5
-	static final float RARE_DOOR = 1f/5f;
+	static final float RARE_DOOR = 1f/10f;
 	static final float RARE_CRUSHER = 1f/1f;
 	static final float RARE_LAKE_OF_LAVA = 1f/5f;//5
 	static final float RARE_LAVA_H = 1f/2f;
@@ -60,6 +62,7 @@ public class LevelGenerator {
 	static final float RARE_DIAMOND = 1f/5f;
 	static final float RARE_LAVA_TREASURES = 2f/3f;
 	static final float RARE_LAVA_DIAMOND = 1f/5f;
+	static final float RARE_TNT = 1f/5f;
 	
 	
 	private Random random;
@@ -109,6 +112,7 @@ public class LevelGenerator {
 	int fy; // Финиш Y
 	
 	public void generate(int w, int h) {
+		finishPoints = new ArrayList<Point>();
 		level = new int[w][h];
 		height = h;
 		width = w;
@@ -122,27 +126,30 @@ public class LevelGenerator {
 		tileX = w/2;
 		tileY = h/2;
 		
-		
-		for (int i = 0; i < h*w/2; i++) {
-			try {
-				dir = (int) (random.nextDouble()*4);
-				room();
-			} catch (ArrayIndexOutOfBoundsException e) {
-				e.printStackTrace();
+		int tryings = 0;
+		boolean generating = true;
+		while (generating) {
+			for (int i = 0; i < h*w/2; i++) {
+				try {
+					room();
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			if(tileX != width/2 && tileX-1 != width/2 && tileX+1 != width/2) {
+				if(tileY != height/2 && tileY-1 != height/2 && tileY+1 != height/2) {
+					finishPoints.add(new Point(tileX, tileY));
+				}
+			}
+			System.out.println("# " +finishPoints.size());
+			generating = finishPoints.size() == 0;
+			tryings ++;
+			if(tryings > 10) {
+				finishPoints.add(new Point(width/2, height/2 - 3));
+				generating = false;
 			}
 		}
 		
-		// Финиш
-		fx = tileX;
-		fy = tileY;
-		for (int x = -1; x < 2; x++) {
-			for (int y = -1; y < 2; y++) {
-				setBlock(tileX+x, tileY+y, BLOCK_LADDER);
-			}
-		}
-		setBlock(tileX, tileY, BLOCK_SOLID);
-		setBlock(tileX, tileY-1, BLOCK_CHEST);
-
 		// Старт
 		tileX = width/2;
 		tileY = height/2;
@@ -153,6 +160,9 @@ public class LevelGenerator {
 			}
 		}
 		setBlock(tileX, tileY, BLOCK_SOLID);
+
+		Point end = finishPoints.get(random.nextInt(finishPoints.size()));
+		finish(end.x, end.y);
 		
 		
 		tiles = new Tile[w][h];
@@ -165,6 +175,8 @@ public class LevelGenerator {
 		
 		calculate();
 	}
+	
+	ArrayList<Point> finishPoints;
 	
 	private void calculate() {
 		gold = 0;
@@ -181,9 +193,43 @@ public class LevelGenerator {
 		}
 	}
 	
+	private void finish(int xx, int yy) {
+		// Финиш
+		fx = xx;
+		fy = yy;
+		for (int x = -1; x < 2; x++) {
+			for (int y = -1; y < 2; y++) {
+				setBlock(xx+x, yy+y, BLOCK_LADDER);
+			}
+		}
+		setBlock(xx, yy, BLOCK_SOLID);
+		setBlock(xx, yy-1, BLOCK_CHEST);
+	}
+	
 	private void room() {
 		roomX = 0;
 		roomY = 0;
+		ArrayList<Integer> dirs = new ArrayList<Integer>();
+		if(2 == getBlock(tileX+roomX, tileY+roomY+1))
+			dirs.add(2);
+		if(2 == getBlock(tileX+roomX, tileY+roomY-1))
+			dirs.add(0);
+		if(2 == getBlock(tileX+roomX+1, tileY+roomY))
+			dirs.add(1);
+		if(2 == getBlock(tileX+roomX-1, tileY+roomY))
+			dirs.add(3);
+		
+//		System.out.println(random.nextInt(dirs.size()) + "/" + dirs.size());
+		if(dirs.size() < 1) {
+			if(tileX != width/2 && tileY != height/2)
+				finishPoints.add(new Point(tileX, tileY));
+			tileX = width/2;
+			tileY = height/2;
+			return;
+		}
+		dir = dirs.get(random.nextInt(dirs.size()));
+		
+		
 		if(dir == 0) { // Вверх
 			while (!(-roomY > random.nextDouble()*4 +1 ||
 					1 == getBlock(tileX+roomX,tileY+roomY-1) || 
@@ -248,6 +294,7 @@ public class LevelGenerator {
 				rope();
 //				if(5 < air) {
 					// Лава
+					tnt(tileX+roomX, tileY+roomY);
 					lakeOfLava(tileX+roomX, tileY+roomY);
 					spiky(tileX+roomX, tileY+roomY);
 					// TODO
@@ -261,21 +308,41 @@ public class LevelGenerator {
 			tileY += roomY;
 		}
 		
-		if(2 != getBlock(tileX+roomX, tileY+roomY+1)) {
-			if(2 != getBlock(tileX+roomX, tileY+roomY-1)) {
-				if(2 != getBlock(tileX+roomX+1, tileY+roomY)) {
-					if(2 != getBlock(tileX+roomX-1, tileY+roomY)) {
-						tileX = width/2;
-						tileY = height/2;
-					}
-				}
-			}
-		}
+//		if(2 != getBlock(tileX+roomX, tileY+roomY+1)) {
+//			if(2 != getBlock(tileX+roomX, tileY+roomY-1)) {
+//				if(2 != getBlock(tileX+roomX+1, tileY+roomY)) {
+//					if(2 != getBlock(tileX+roomX-1, tileY+roomY)) {
+//					}
+//				}
+//			}
+//		}
 		
 		air--;
 	}
 	
+	private void tnt(int x, int y) {
+		if(random.nextDouble() < RARE_TNT) {
+			if(getBlock(x, y) == BLOCK_AIR) {
+				if(isStone(x, y+1)) {
+					if(isStone(x, y+2)) {
+						if(isStone(x, y+4)) {
+							if(isStone(x, y+5)) {
+								setBlock(x, y, BLOCK_PLATE);
+								setBlock(x, y+1, BLOCK_MOSSY_STONE);
+								setBlock(x, y+2, BLOCK_TNT);
+								setBlock(x, y+4, BLOCK_SPIKY);
+								setBlock(x, y+5, BLOCK_MOSSY_STONE);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 	int lava = 0;
+	
 	
 	private void lakeOfLava(int x, int y) {
 		if(random.nextDouble() < RARE_LAKE_OF_LAVA) {
