@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import Main.GamePanel;
 import Stages.GameStage;
 import Work.LevelGenerator;
+import Work.Loader;
 
 public class Player extends GameObject {
 
@@ -55,7 +56,7 @@ public class Player extends GameObject {
 	public void draw(Graphics2D g) {
 //		double k = GameStage.tilesize*GamePanel.quality;
 		int q = (int) GamePanel.quality;
-		g.drawImage(main,
+		g.drawImage(Loader.PLAYER,
 				(int)((x-GameStage.mapX + GameStage.mapX2 + GamePanel.getGameWidth()/q/2)*q - cx),
 				(int) (y-GameStage.mapY + GameStage.mapY2 + GamePanel.getGameHeight()/2  - cy),
 				(int)(10*GamePanel.quality),

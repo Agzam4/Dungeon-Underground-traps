@@ -14,6 +14,7 @@ import Objects.Button;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
+import Work.Loader;
 import Work.MyAudio;
 
 public class GameOverStage extends Stage {
@@ -100,10 +101,11 @@ public class GameOverStage extends Stage {
 			}
 			if(go[4])
 				gameOver += "button";
-
 			if(go[5]) {
 				gameOver += "dart";
 //				GameData.complitedAchievements(GameData.ACHIEVEMENTS_DART);
+			}else if(gameStage.getDarts() > 0) {
+				gameOver += " while run from dart";
 			}
 		}
 		
@@ -169,7 +171,7 @@ public class GameOverStage extends Stage {
 					(int) (24*GamePanel.scalefull) + maxX, (int) (134*GamePanel.scalefull));
 		}
 		gf.setColor(new Color(52,161,216));
-		gf.drawImage(gameStage.tiles[generator.BLOCK_DIAMOND-1],
+		gf.drawImage(Loader.tileset[generator.BLOCK_DIAMOND-1],
 				(int) (0*GamePanel.scalefull),
 				(int) (100*GamePanel.scalefull),
 				(int) (32*GamePanel.scalefull),
@@ -180,7 +182,7 @@ public class GameOverStage extends Stage {
 				(int) (118*GamePanel.scalefull));//
 		
 		
-		gf.drawImage(gameStage.tiles[generator.BLOCK_GOLD-1],
+		gf.drawImage(Loader.tileset[generator.BLOCK_GOLD-1],
 				(int) (0*GamePanel.scalefull),
 				(int) (116*GamePanel.scalefull),
 				(int) (32*GamePanel.scalefull),
@@ -213,14 +215,14 @@ public class GameOverStage extends Stage {
 	
 	final AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.DST_IN, 1f);
 	final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
-	private void fillRect(Graphics2D gf, int w) {
-//		gf.setComposite(alpha);
-//		gf.setColor(new Color(0,0,0,0));
-		gf.setPaint(getGradient(new Color(0,0,0,100)));
-		gf.fillRect(GamePanel.frameW/2 + w/2, 0, GamePanel.frameW, GamePanel.frameH);
-		gf.fillRect(0, 0, GamePanel.frameW/2 - w/2, GamePanel.frameH);
-//		gf.setComposite(normal);
-	}
+//	private void fillRect(Graphics2D gf, int w) {
+////		gf.setComposite(alpha);
+////		gf.setColor(new Color(0,0,0,0));
+//		gf.setPaint(getGradient(new Color(0,0,0,100)));
+//		gf.fillRect(GamePanel.frameW/2 + w/2, 0, GamePanel.frameW, GamePanel.frameH);
+//		gf.fillRect(0, 0, GamePanel.frameW/2 - w/2, GamePanel.frameH);
+////		gf.setComposite(normal);
+//	}
 	
 	private void setStroke(Graphics2D gf, float v) {
 		stroke = (float) (GamePanel.scalefull*v);

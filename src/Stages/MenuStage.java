@@ -7,10 +7,10 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.util.Iterator;
 
-import javax.swing.JOptionPane;
 
 import Main.GamePanel;
 import Objects.Button;
+import Objects.JOptionPane;
 import Work.GameData;
 import Work.LevelGenerator;
 import Work.MouseController;
@@ -24,11 +24,11 @@ public class MenuStage extends Stage {
 	private static final int SETTINGS = 3;
 	private static final int ATCHIVMENTS = 4;
 	private static final int EXIT = 5;
-	
 
 	MyAudio pop;
 	MyAudio click;
 	Maneger maneger;
+	
 	public MenuStage(Maneger m) {
 		for (int i = 0; i < myButtons.length; i++) {
 			myButtons[i] = new Button(GameData.texts[i], 0, 0);
@@ -50,7 +50,10 @@ public class MenuStage extends Stage {
 	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
-		
+
+		if(optionPane != null) {
+			optionPane.draw(gf);
+		}
 		
 		for (int i = 0; i < myButtons.length; i++) {
 			myButtons[i].draw(gf);
@@ -126,10 +129,32 @@ public class MenuStage extends Stage {
 		}
 	}
 	
+	JOptionPane optionPane;
+	
 	int selected = -1;
 
 	@Override
 	public void update() {
+		if(optionPane != null) {
+			optionPane.update();
+			if(optionPane.needClose) {
+				if(optionPane.isOKpressed) {
+					String seed = optionPane.getInput();
+					try {
+						maneger.setGameStage(Long.parseLong(seed));
+					} catch (NumberFormatException e) {
+						char[] sc = seed.toCharArray();
+						long newSeed = Long.MIN_VALUE;
+						for (int j = 0; j < sc.length; j++) {
+							newSeed += (int) sc[j] * (j+1) * Character.MAX_CODE_POINT;
+						}
+						maneger.setGameStage(newSeed);
+					}
+				}
+				optionPane = null;
+			}
+			return;
+		}
 		dist = GamePanel.frameH/(buttons.length+4);
 		int x = MouseController.getMousePointOnFrame().x;
 		int y = MouseController.getMousePointOnFrame().y;
@@ -151,19 +176,7 @@ public class MenuStage extends Stage {
 					maneger.loadStage(Maneger.GAME);
 					break;
 				case PLAY_ON_SEED:
-					String seed = JOptionPane.showInputDialog(null, "Seed: ");
-					if(seed == null)
-						break;
-					try {
-						maneger.setGameStage(Long.parseLong(seed));
-					} catch (NumberFormatException e) {
-						char[] sc = seed.toCharArray();
-						long newSeed = Long.MIN_VALUE;
-						for (int j = 0; j < sc.length; j++) {
-							newSeed += (int) sc[j] * (j+1) * Character.MAX_CODE_POINT;
-						}
-						maneger.setGameStage(newSeed);
-					}
+					optionPane = new JOptionPane(JOptionPane.TYPE_INPUT, "Seed: ");
 					break;
 
 				case SETTINGS:
@@ -196,7 +209,9 @@ public class MenuStage extends Stage {
 	
 	@Override
 	protected void keyPressed(KeyEvent e) {
-
+		if(optionPane != null) {
+			optionPane.keyPressed(e);
+		}
 	}
 
 	@Override
@@ -211,7 +226,6 @@ public class MenuStage extends Stage {
 
 	@Override
 	protected void releasedAll() {
-		
 	}
 
 }

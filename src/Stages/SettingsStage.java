@@ -9,17 +9,22 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.TimeZone;
 
-import javax.swing.JOptionPane;
 
 import Main.DungeonJFrame;
 import Main.GamePanel;
 import Objects.Button;
+import Objects.JOptionPane;
 import Work.GameData;
 import Work.LevelGenerator;
+import Work.Loader;
 import Work.MyFile;
 
 public class SettingsStage extends Stage {
 
+	private static final int INT_FULLSCREEN = 0;
+
+	private static final int INT_DELETE_PROGRESS = 1;
+	
 	Maneger maneger;
 	Button button = new Button(GameData.texts[GameData.TEXT_BACK], 0, 0);
 	
@@ -43,6 +48,7 @@ public class SettingsStage extends Stage {
 		}
 		minus.chageSize = false;
 		plus.chageSize = false;
+		packs.chageSize = false;
 		deleteprogress.chageSize = false;
 		fullscreen.chageSize = false;
 	}
@@ -52,6 +58,9 @@ public class SettingsStage extends Stage {
 	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
+		if(optionPane != null) {
+			optionPane.draw(gf);
+		}
 		button.draw(gf);
 		for (int i = 0; i < settings.length; i++) {
 			settings[i].draw(gf);
@@ -131,15 +140,20 @@ public class SettingsStage extends Stage {
 
 	Button plus = new Button("+", 0, 0);
 	Button minus = new Button("-", 0, 0);
+	Button packs = new Button("Packs", 0, 0);
+	
 	private void drawGraphics(Graphics2D gf) {
 		drawCenterString(gf, GameData.texts[GameData.TEXT_GRAPHICS], 1, Color.WHITE, Color.BLACK);
 		setSize(gf, 10);
 		sgqt = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality) + 25 + sgqm;
 		drawString(gf, GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality, 25 + sgqm, 25, Color.LIGHT_GRAY, Color.BLACK);
+		if(Loader.minQuality > GameData.quality)
+			drawString(gf, "! " + GameData.texts[GameData.TEXT_GAME_QUALITY] + "< " + Loader.minQuality, 25 + sgqt + plus.getBw(), 25, new Color(50,0,0), new Color(250,0,0,100));
 		plus.draw(gf);
 		minus.draw(gf);
+		packs.draw(gf);
 		setSize(gf, 7);
-		drawString(gf, GameData.texts[GameData.TEXT_GRAPHICS_INFO], 15, 45, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_GRAPHICS_INFO], 15, 55, Color.GRAY, Color.BLACK);
 	}
 	
 	String audioV[] = (GameData.texts[GameData.TEXT_VOLUME] + "/0%/50%/100%").split("/");
@@ -220,9 +234,36 @@ public class SettingsStage extends Stage {
 	int sgqt = 0;
 	
 	int setControlID = -1;
+	
+	JOptionPane optionPane;
 
 	@Override
 	public void update() {
+		if(optionPane != null) {
+			optionPane.update();
+			if(optionPane.needClose) {
+				if(optionPane.isOKpressed) {
+					switch (optionPane.getData()) {
+					case INT_FULLSCREEN:
+						GameData.save();
+						System.exit(0);
+						break;
+					case INT_DELETE_PROGRESS:
+						String input = optionPane.getInput();
+						if(input != null) {
+							if(input.toUpperCase().equals("YES")){
+								GameData.deleteProgress();
+							}
+						}
+						break;
+					default:
+						break;
+					}
+				}
+				optionPane = null;
+			}
+			return;
+		}
 		GameStage.updateMusicVolume();
 		dist = GamePanel.frameH/(settings.length+2);
 		
@@ -244,20 +285,18 @@ public class SettingsStage extends Stage {
 			fullscreen.update();
 			if(fullscreen.isClicked()) {
 				GameData.fullscreen = !GameData.fullscreen;
-				JOptionPane.showMessageDialog(null, GameData.texts[GameData.TEXT_RELOAD_GAME]);
-				GameData.save();
-				System.exit(0);
+				optionPane = new JOptionPane(JOptionPane.TYPE_INFO, GameData.texts[GameData.TEXT_RELOAD_GAME], INT_FULLSCREEN);
+//				JOptionPane.showMessageDialog(null, GameData.texts[GameData.TEXT_RELOAD_GAME]);
+//				GameData.save();
+//				System.exit(0);
 			}
 			deleteprogress.setPosition(sx + 15 + deleteprogress.getBw()/2, 125*sh + 5);
 			deleteprogress.setFontSize(10);
 			deleteprogress.update();
 			if(deleteprogress.isClicked()) {
-				String input = JOptionPane.showInputDialog(null, "Write \"Yes\" if you really want delete progress");
-				if(input != null) {
-					if(input.toUpperCase().equals("YES")){
-						GameData.deleteProgress();
-					}
-				}
+				optionPane = new JOptionPane(JOptionPane.TYPE_INPUT, "Write \"Yes\" if you really want delete progress", INT_DELETE_PROGRESS);
+//				FIXME String input = JOptionPane.showInputDialog(null, "Write \"Yes\" if you really want delete progress");
+//			
 			}
 		}
 		
@@ -291,20 +330,26 @@ public class SettingsStage extends Stage {
 		}
 
 		sgqm = minus.getBw();
+		plus.clickable = GameData.quality < 10;
+		minus.clickable = GameData.quality > 1;
 		if(selected == 1) {
 			minus.setPosition(25 + sx + sgqm/2, sh*36);
 			plus.setPosition(25 + sx + sgqt, sh*36);
+			packs.setPosition(25 + sx + packs.getBw()/2, sh*50);
+			packs.setFontSize(10);
+			packs.setText("Packs (" + MyFile.getPackName() + ")");
+			packs.update();
 			minus.update();
 			plus.update();
-		}
-		
-		plus.clickable = GameData.quality < 10;
-		minus.clickable = GameData.quality > 1;
-		if(plus.isClicked()) {
-			GameData.quality++;
-		}
-		if(minus.isClicked()) {
-			GameData.quality--;
+			if(packs.isClicked()) {
+				maneger.loadStageNoLast(Maneger.PACKS);
+			}
+			if(plus.isClicked()) {
+				GameData.quality++;
+			}
+			if(minus.isClicked()) {
+				GameData.quality--;
+			}
 		}
 		
 		button.setPosition(GamePanel.frameW/2, GamePanel.frameH/6*5);
@@ -317,6 +362,9 @@ public class SettingsStage extends Stage {
 
 	@Override
 	protected void keyPressed(KeyEvent e) {
+		if(optionPane != null) {
+			optionPane.keyPressed(e);
+		}
 		if(setControlID != -1) {
 			GameData.control[setControlID] = e.getKeyCode();
 			setControlID = -1;

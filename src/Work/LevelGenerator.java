@@ -253,7 +253,6 @@ public class LevelGenerator {
 				treasures(tileX+roomX, tileY+roomY);
 				rope();
 //				if(5 < air) {
-					// TODO: update
 					spiky(tileX+roomX, tileY+roomY);
 					dart(tileX+roomX, tileY+roomY, false);
 					door(tileX+roomX, tileY+roomY);
@@ -324,13 +323,17 @@ public class LevelGenerator {
 		if(random.nextDouble() < RARE_TNT) {
 			if(getBlock(x, y) == BLOCK_AIR) {
 				if(isStone(x, y+1)) {
-					if(isStone(x, y+2)) {
-						if(isStone(x, y+4)) {
+					if(isStone(x, y+2) && isStone(x-1, y+3) && isStone(x+1, y+3)) {
+						if(isStone(x-1, y+4) && isStone(x, y+4) && isStone(x+1, y+4)) {
 							if(isStone(x, y+5)) {
 								setBlock(x, y, BLOCK_PLATE);
 								setBlock(x, y+1, BLOCK_MOSSY_STONE);
 								setBlock(x, y+2, BLOCK_TNT);
+								setBlock(x-1, y+3, BLOCK_MOSSY_STONE);
+								setBlock(x+1, y+3, BLOCK_MOSSY_STONE);
+								setBlock(x-1, y+4, BLOCK_SPIKY);
 								setBlock(x, y+4, BLOCK_SPIKY);
+								setBlock(x+1, y+4, BLOCK_SPIKY);
 								setBlock(x, y+5, BLOCK_MOSSY_STONE);
 							}
 						}
@@ -526,7 +529,7 @@ public class LevelGenerator {
 //		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_PLATE;
 //	}
 	
-	private boolean isStone(int x, int y) {
+	public boolean isStone(int x, int y) {
 		return BLOCK_STONE == getBlock(x, y);
 	}
 	

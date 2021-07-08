@@ -13,12 +13,13 @@ public class Maneger {
 	public final static int GAMEOVER = 2;
 	public final static int ACHIEVEMENTS = 3;
 	public final static int SETTINGS = 4;
+	public static final int PACKS = 5;
 	
 
 	public int selected = 0;
 	public int lastSelected = 0;
 	
-	private Stage[] stages = new Stage[5];
+	private Stage[] stages = new Stage[6];
 	
 	public Maneger(int stageID) {
 		MouseController.isMousePressed = false;
@@ -41,10 +42,17 @@ public class Maneger {
 		this.selected = selected;
 	}
 	
+	public void loadStageNoLast(int stageID) {
+		loadStagee(stageID);
+	}
 	public void loadStage(int stageID) {
+		lastSelected = selected;
+		loadStagee(stageID);
+	}
+	
+	private void loadStagee(int stageID) {
 		MouseController.isMousePressed = false;
 		releasedAll();
-		lastSelected = selected;
 		selected = stageID;
 		switch (stageID) {
 		case MENU:
@@ -61,6 +69,9 @@ public class Maneger {
 			break;
 		case SETTINGS:
 			stages[SETTINGS] = new SettingsStage(this);
+			break;
+		case PACKS:
+			stages[PACKS] = new PacksStage(this);
 			break;
 		default:
 			break;

@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import Main.GamePanel;
 import Stages.GameStage;
+import Work.Loader;
 
 public class Dart {
 
@@ -35,7 +36,7 @@ public class Dart {
 	public void draw(Graphics2D g) {
 		if(isHit)
 			return;
-		g.drawImage(img,
+		g.drawImage(Loader.DART,
 				(int) ((x - GameStage.mapX + w/2)*GamePanel.quality + GamePanel.getGameWidth()/2),
 				(int) ((y - GameStage.mapY + h/2)*GamePanel.quality + GamePanel.getGameHeight()/2),
 				(int) (w*GamePanel.quality),

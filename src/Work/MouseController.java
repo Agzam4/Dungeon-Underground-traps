@@ -7,6 +7,8 @@ import Main.GamePanel;
 public class MouseController {
 
 	public static boolean isMousePressed;
+	public static double mouseScroll;
+	
 	private static int mx;
 	private static int my;
 

@@ -92,6 +92,7 @@ public class Button {
 				isPressed = true;
 				if(s == 1) {
 					click.play(0);
+					MouseController.isMousePressed = false;
 					s = 2;
 					isClicked = true;
 				}
@@ -112,9 +113,15 @@ public class Button {
 	}
 	
 	public boolean isClicked() {
-		return isClicked;
+		return isClicked || robotClick;
 	}
+	
+	boolean robotClick;
 
+	public void click() {
+		robotClick = true;
+	}
+	
 	public int getBh() {
 		return (int) ((fontSize+5)*GamePanel.scalefull);
 	}

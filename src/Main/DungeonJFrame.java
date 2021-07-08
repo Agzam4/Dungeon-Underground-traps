@@ -5,18 +5,14 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import Stages.GameStage;
 import Work.GameData;
+import Work.Loader;
 import Work.MouseController;
 import Work.MyFile;
 
@@ -30,6 +26,7 @@ public class DungeonJFrame extends JFrame {
 	 */
 	public static void main(String[] args) {
 		MyFile.checkSavesFolder();
+		Loader.reload("tmp");
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -72,11 +69,16 @@ public class DungeonJFrame extends JFrame {
 //		frame.setVisible(true);
 	}
 
-	String[] txts = {"",""};
+	String[] txts = {"","","","","",
+//			" | Hint: 01000010 01001001 01001110 01000001 01010010 01011001",
+//			" | Hint: Colorless", 
+//			" | Hint: Colorless", 
+			""};
 	
 	/**
 	 * Create the frame.
 	 */
+	
 	public DungeonJFrame() {
 		setUndecorated(GameData.fullscreen);
 		

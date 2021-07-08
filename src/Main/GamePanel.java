@@ -7,22 +7,16 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.awt.event.HierarchyEvent;
-import java.awt.event.HierarchyListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
 
 import javax.swing.JPanel;
 
@@ -76,6 +70,20 @@ public class GamePanel extends JPanel implements KeyListener {
 				GamePanel.stop = false;
 			}
 		});
+		
+		addMouseWheelListener(new MouseWheelListener() {
+			
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e) {
+				System.out.println("getPreciseWheelRotation: " + e.getPreciseWheelRotation());
+				System.out.println("getScrollAmount: " + e.getScrollAmount());
+				System.out.println("getScrollType: " + e.getScrollType());
+				System.out.println("getUnitsToScroll: " + e.getUnitsToScroll());
+				System.out.println("getWheelRotation: " + e.getWheelRotation());
+				System.out.println("getWhen: " + e.getWhen());
+				MouseController.mouseScroll -= e.getPreciseWheelRotation();
+			}
+		});
 	}
 	
 	public void run(DungeonJFrame frame) {
@@ -90,7 +98,7 @@ public class GamePanel extends JPanel implements KeyListener {
 					start = System.nanoTime();
 					updtae();
 					if(!GameData.skipFrames) {
-						draw();
+						draw((Graphics2D)getGraphics());
 					}
 					wait = sleep - (System.nanoTime() - start)/1000000;
 					if(wait < 0) wait = 5;
@@ -113,7 +121,7 @@ public class GamePanel extends JPanel implements KeyListener {
 				while (running) {
 					if(GameData.skipFrames) {
 						start = System.nanoTime();
-						draw();
+						draw((Graphics2D)getGraphics());
 						wait = sleep - (System.nanoTime() - start)/1000000;
 						if(wait < 0) wait = 5;
 						try {
@@ -217,8 +225,13 @@ public class GamePanel extends JPanel implements KeyListener {
 	
 	boolean pausedIsDrawed = false;
 	
-	private void draw() {
-		Graphics2D thisG = (Graphics2D) getGraphics();
+	@Override
+	public void paint(Graphics g) {
+		draw((Graphics2D) g);
+	}
+	
+	private void draw(Graphics2D thisG) {
+//		Graphics2D thisG = (Graphics2D) getGraphics();
 		if(thisG == null) {
 			return;
 		}
@@ -315,6 +328,10 @@ public class GamePanel extends JPanel implements KeyListener {
 		game = new BufferedImage((int) ((int) Math.ceil(frameW/scale/tq/2f)*tq*2f + tq),
 				(int) (Math.ceil(16*11*quality/tq)*tq), BufferedImage.TYPE_INT_RGB);
 		/**
+		 * TYPE_INT_RGB
+		 * 
+		 * TODO
+		 * 
 		 * TYPE_USHORT_555_RGB	// ROUND
 		 * TYPE_BYTE_INDEXED	// PIXEL
 		 * TYPE_BYTE_GRAY		// GRAY

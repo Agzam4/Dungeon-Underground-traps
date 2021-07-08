@@ -19,11 +19,12 @@ import Objects.Dart;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
+import Work.Loader;
 import Work.MyAudio;
 
 public class GameStage extends Stage {
 
-	public BufferedImage[] tiles;
+//	public BufferedImage[] tiles;
 	public static LevelGenerator level;
 	GameOverStage overStage;
 
@@ -35,12 +36,13 @@ public class GameStage extends Stage {
 	private static final int DOOR_OPEN = 2;
 	private static final int DOOR_CLOSE = 3;
 	private static final int DART = 4;
+	private static final int BOOM = 5;
 	
 	
 	ArrayList<Dart> darts = new ArrayList<Dart>();
 	int dartsTime = 0;
 	
-	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close", "dart"};
+	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close", "dart", "boom"};
 	MyAudio sounds[] = new MyAudio[soundsNames.length];
 	
 	long times;
@@ -73,23 +75,23 @@ public class GameStage extends Stage {
 		player = new Player(level);
 		player.setPosition(mapX, mapY-tilesize);
 		
-		BufferedImage tileset = null;
-		try {
-			tileset = ImageIO.read(GameStage.class.getResourceAsStream("/img/tileset/Dungeon_Underground_traps.png"));
-		} catch (IOException e) {
-		}
-		int w = tileset.getWidth()/tilesize;
-		int h = tileset.getHeight()/tilesize;
-		
-		tiles = new BufferedImage[w*h];
-		int id = 0;
-
-		for (int y = 0; y < h; y++) {
-			for (int x = 0; x < w; x++) {
-				tiles[id] = tileset.getSubimage(x*tilesize, y*tilesize, tilesize, tilesize);
-				id++;
-			}
-		}
+//		BufferedImage tileset = null;
+//		try {
+//			tileset = ImageIO.read(GameStage.class.getResourceAsStream("/img/tileset/Dungeon_Underground_traps.png"));
+//		} catch (IOException e) {
+//		}
+//		int w = tileset.getWidth()/tilesize;
+//		int h = tileset.getHeight()/tilesize;
+//		
+//		tiles = new BufferedImage[w*h];
+//		int id = 0;
+//
+//		for (int y = 0; y < h; y++) {
+//			for (int x = 0; x < w; x++) {
+//				tiles[id] = tileset.getSubimage(x*tilesize, y*tilesize, tilesize, tilesize);
+//				id++;
+//			}
+//		}
 
 		pButtons[0] = new Button(GameData.texts[GameData.TEXT_RESUME], 0, 0);
 		pButtons[1] = new Button(GameData.texts[GameData.TEXT_FAST_LOSE], 0, 0);
@@ -151,7 +153,7 @@ public class GameStage extends Stage {
 		mapY2 *= -GameData.screenShake;
 		mapY2 = Math.round(mapY2*100)/100f;
 
-		g.setColor(new Color(43,43,43));
+		g.setColor(Loader.GAME_BG_COLOR);
 		g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
 		
 		for (Dart dart : darts) {
@@ -192,19 +194,19 @@ public class GameStage extends Stage {
 				
 				
 				if(block == 26){
-					g.drawImage(tiles[24],
+					g.drawImage(Loader.tileset[24],
 							px,
 							py + (int)((crusserY -16)*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(tiles[block-1],
+					g.drawImage(Loader.tileset[block-1],
 							px,
 							py + (int)(crusserY*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(tiles[level.getBlock(bx, by-1)-1],
+					g.drawImage(Loader.tileset[level.getBlock(bx, by-1)-1],
 							px,
 							py + (int)(-16*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
@@ -212,19 +214,19 @@ public class GameStage extends Stage {
 							null);
 					countCrushers++;// = true;
 				}else if (block == 30) {
-					g.drawImage(tiles[block-1],
+					g.drawImage(Loader.tileset[block-1],
 							px,
 							py + (int)((- 16 - lavaH)*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(tiles[block+2],
+					g.drawImage(Loader.tileset[block+2],
 							px,
 							py + (int)(-lavaH*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(tiles[block+1],
+					g.drawImage(Loader.tileset[block+1],
 							px,
 							py,
 							(int)(tilesize*GamePanel.quality),
@@ -232,7 +234,7 @@ public class GameStage extends Stage {
 							null);
 
 				}else {
-					g.drawImage(tiles[block-1],
+					g.drawImage(Loader.tileset[block-1],
 							px,
 							py,
 							(int)(tilesize*GamePanel.quality),
@@ -270,7 +272,7 @@ public class GameStage extends Stage {
 //		g.drawLine(0, GamePanel.getGameHeight()/2, GamePanel.getGameWidth(), GamePanel.getGameHeight()/2);
 
 		gf.setColor(new Color(37,107,142));//240,235,16));
-		gf.drawImage(tiles[level.BLOCK_DIAMOND-1],
+		gf.drawImage(Loader.tileset[level.BLOCK_DIAMOND-1],
 				(int) ((0)*GamePanel.scalefull),
 				(int) ((0)*GamePanel.scalefull),
 				(int) (16*GamePanel.scalefull),
@@ -280,7 +282,7 @@ public class GameStage extends Stage {
 				(int) ((11)*GamePanel.scalefull),
 				(int) ((10)*GamePanel.scalefull));//+gf.getFont().getSize()/2
 		
-		gf.drawImage(tiles[level.BLOCK_GOLD-1],
+		gf.drawImage(Loader.tileset[level.BLOCK_GOLD-1],
 				(int) ((0)*GamePanel.scalefull),
 				(int) ((8)*GamePanel.scalefull),
 				(int) (16*GamePanel.scalefull),
@@ -318,7 +320,10 @@ public class GameStage extends Stage {
 
 	public static double crusserY = 0;
 	static int gradientT = 0;
-	
+
+	int boom_time = 0;
+	int boom_x = -1;
+	int boom_y = -1;
 	
 	@Override
 	public void update() {
@@ -330,6 +335,24 @@ public class GameStage extends Stage {
 			radius = (radius-1)*0.8f + 1;
 			gradientT = 0;
 			return;
+		}
+		if(boom_time > 0) { // -1014327005907606213
+			boom_time--;
+			if(boom_time < 1) {
+				level.setTile(boom_x, boom_y, level.BLOCK_AIR);
+				level.setTile(boom_x, boom_y-1, level.BLOCK_AIR);
+				level.setTile(boom_x, boom_y-2, level.BLOCK_AIR);
+				level.setTile(boom_x-1, boom_y+1, level.BLOCK_AIR);
+				level.setTile(boom_x+1, boom_y+1, level.BLOCK_AIR);
+				for (int y = boom_y-1; y < boom_y+2; y++) {
+					for (int x = boom_x-1; x < boom_x+2; x++) {
+						if(level.isStone(x, y)) {
+							level.setTile(x, y, level.BLOCK_AIR);
+						}
+					}
+				}
+				sounds[BOOM].play(0);
+			}
 		}
 		
 		if(paused) {
@@ -459,6 +482,11 @@ public class GameStage extends Stage {
 							darts.add(new Dart(this, x+tileX-5, y+tileY));
 						}
 					}
+					if(level.getBlock(x+tileX, y+tileY+2) == level.BLOCK_TNT && boom_time == 0) {
+						boom_time = 5;
+						boom_x = x+tileX;
+						boom_y = y+tileY+2;
+					}
 				}
 				if(level.BLOCK_PLATE_ACTIVATE == t && !isHit) {
 					level.setTile(x+tileX, y+tileY, level.BLOCK_PLATE);
@@ -547,5 +575,9 @@ public class GameStage extends Stage {
 		for (int ii = 0; ii < sounds.length; ii++) {
 			sounds[ii].setVolume(GameData.audio[GameData.AUDIO_SOUNDS]/2f);
 		}
+	}
+	
+	public int getDarts() {
+		return darts.size();
 	}
 }

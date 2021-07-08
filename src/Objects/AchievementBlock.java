@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import Main.GamePanel;
 import Work.GameData;
+import Work.Loader;
 import Work.MouseController;
 import Work.MyAudio;
 import Work.MyFile;
@@ -78,7 +79,7 @@ public class AchievementBlock {
 			gf.drawRect(x-w/2, y-w/2, w-1, w-1);
 		}
 		drawImage(gf, fg);
-		drawImage(gf, image);
+		drawImage(gf, Loader.achievement_ico[id]);
 		drawImage(gf, bg);
 	}
 	
