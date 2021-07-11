@@ -119,9 +119,9 @@ public class AchievementBlock {
 	
 	
 	private void drawString(Graphics2D gf, String str, int x, int y) {
-		gf.setColor(fc);
+		gf.setColor(Loader.COLOR_TEXT_FG);
 		gf.drawString(str, x, y);
-		gf.setColor(bc);
+		gf.setColor(Loader.COLOR_TEXT_BG);
 		for (int xx = -1; xx < 2; xx++) {
 			for (int yy = -1; yy <2; yy++) {
 				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));
@@ -210,5 +210,11 @@ public class AchievementBlock {
 	boolean needRemove;
 	public boolean needRemove() {
 		return needRemove;
+	}
+	
+	
+	public void reloadText() {
+		title = achievementsText[id*2];
+		text = achievementsText[id*2 + 1];
 	}
 }

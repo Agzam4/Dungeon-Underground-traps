@@ -33,7 +33,7 @@ public class AchievementStage extends Stage {
 			achievements[i] = new AchievementBlock(i);
 		}
 		try {
-			bg = ImageIO.read(AchievementBlock.class.getResource("/img/bg/achievement_bg.png"));
+			bg = ImageIO.read(AchievementBlock.class.getResource("/img/bg/achievement_stage.png"));
 		} catch (IOException e) {
 			bg = new BufferedImage(GamePanel.getGameWidth(), GamePanel.getGameHeight(), BufferedImage.TYPE_INT_RGB);
 		}
@@ -89,6 +89,13 @@ public class AchievementStage extends Stage {
 	@Override
 	protected LevelGenerator getLevelGenerator() {
 		return null;
+	}
+
+	@Override
+	protected void reloadTexts() {
+		for (int i = 0; i < achievements.length; i++) {
+			achievements[i].reloadText();
+		}
 	}
 
 }

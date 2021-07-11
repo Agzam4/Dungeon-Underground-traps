@@ -1,6 +1,7 @@
 package Stages;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -42,8 +43,8 @@ public class GameStage extends Stage {
 	ArrayList<Dart> darts = new ArrayList<Dart>();
 	int dartsTime = 0;
 	
-	String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close", "dart", "boom"};
-	MyAudio sounds[] = new MyAudio[soundsNames.length];
+	static String soundsNames[] = {"plate_down","plate_up", "door_open", "door_close", "dart", "boom"};
+	static MyAudio sounds[] = new MyAudio[soundsNames.length];
 	
 	long times;
 	
@@ -153,7 +154,7 @@ public class GameStage extends Stage {
 		mapY2 *= -GameData.screenShake;
 		mapY2 = Math.round(mapY2*100)/100f;
 
-		g.setColor(Loader.GAME_BG_COLOR);
+		g.setColor(Loader.COLOR_GAME_BG);
 		g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
 		
 		for (Dart dart : darts) {
@@ -173,6 +174,7 @@ public class GameStage extends Stage {
 //				int py = (int)(((y+vh)*16 - mapY%tilesize + mapY2 + 7 + GamePanel.gameY)*GamePanel.quality);
 		
 
+		// Draw Tiles //
 		int tileX = (int) -(GamePanel.getGameWidth()/GamePanel.quality/2/tilesize);
 		int tileY = (int) -(GamePanel.getGameHeight()/GamePanel.quality/2/tilesize);
 		//int cx = (int) ((int)(GamePanel.getGameWidth()/GamePanel.quality) - (int) (-mapX%tilesize));
@@ -242,6 +244,51 @@ public class GameStage extends Stage {
 							null);
 				}
 				
+			}
+		}
+		
+		
+		// Draw Border //
+		tileX = (int) -(GamePanel.getGameWidth()/GamePanel.quality/2/tilesize);
+		tileY = (int) -(GamePanel.getGameHeight()/GamePanel.quality/2/tilesize);
+		for (int y = (int) (-mapY%tilesize); y < GamePanel.getGameHeight()/GamePanel.quality; y+=tilesize) {
+			for (int x = (int) (-mapX%tilesize); x < GamePanel.getGameWidth()/GamePanel.quality; x+=tilesize) {
+				int bx = (int) ((mapX+x)/tilesize) + tileX;
+				int by = (int) ((y+mapY)/tilesize) + tileY;
+				int px = (int) ((x - 5 + mapX2)*GamePanel.quality + GamePanel.quality*8);
+				int py = (int) Math.ceil((y+3 + mapY2)*GamePanel.quality);
+				int lineSize = (int)(tilesize*GamePanel.quality);
+				int borderSize = (int)(Loader.borderSize*GamePanel.quality/2d);
+				
+				int borderV = borderSize*Loader.borderType;
+				if(level.isVoidBlock(bx, by)) {
+					if(Loader.isVisibleBorderUp) {
+						if(level.isNotVoidBlock(bx, by-1)) {
+							g.setColor(Loader.COLOR_BORDER_UP);
+							g.fillRect(px, py-borderSize + borderV, lineSize, borderSize*2);
+						}
+					}
+					if(Loader.isVisibleBorderLeft) {
+						if(level.isNotVoidBlock(bx-1, by)) {
+							g.setColor(Loader.COLOR_BORDER_LEFT);
+							g.fillRect(px-borderSize+borderV, py, borderSize*2, lineSize);
+						}
+					}
+				}
+				if(level.isNotVoidBlock(bx, by)) {
+					if(Loader.isVisibleBorderDown) {
+						if(level.isVoidBlock(bx, by-1)) {
+							g.setColor(Loader.COLOR_BORDER_DOWN);
+							g.fillRect(px, py-borderSize-borderV, lineSize, borderSize*2);
+						}
+					}
+					if(Loader.isVisibleBorderRight) {
+						if(level.isVoidBlock(bx-1, by)) {
+							g.setColor(Loader.COLOR_BORDER_RIGHT);
+							g.fillRect(px-borderSize-borderV, py, borderSize*2, lineSize);
+						}
+					}
+				}
 			}
 		}
 
@@ -579,5 +626,32 @@ public class GameStage extends Stage {
 	
 	public int getDarts() {
 		return darts.size();
+	}
+
+	@Override
+	protected void reloadTexts() {
+		pButtons[0].setText(GameData.texts[GameData.TEXT_RESUME]);
+		pButtons[1].setText(GameData.texts[GameData.TEXT_FAST_LOSE]);
+		pButtons[2].setText(GameData.texts[GameData.TEXT_ACHIEVEMENTS]);
+		pButtons[3].setText(GameData.texts[GameData.TEXT_SETTINGS]);
+		pButtons[4].setText(GameData.texts[GameData.TEXT_MENU]);
+	}
+	
+	
+	public static void reloadMusic() {
+		if(music == null)
+			return;
+		boolean isPlaying = music.isPlaying();
+		music.stop();
+		music.close();
+		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+		if(isPlaying)
+			music.play(-1);
+
+		if(sounds == null)
+			return;
+		for (int i = 0; i < sounds.length; i++) {
+			sounds[i] = new MyAudio("/sounds/" + soundsNames[i] + ".wav");
+		}
 	}
 }

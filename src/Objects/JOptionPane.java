@@ -14,6 +14,7 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import Main.GamePanel;
+import Work.Loader;
 import Work.MouseController;
 
 public class JOptionPane {
@@ -42,9 +43,9 @@ public class JOptionPane {
 	}
 	
 	private void drawString(Graphics2D gf, String str, int x, int y, Color c1, Color c2) {
-		gf.setColor(c1);
+		gf.setColor(Loader.COLOR_TEXT_FG);
 		gf.drawString(str, x, y);
-		gf.setColor(c2);
+		gf.setColor(Loader.COLOR_TEXT_BG);
 		for (int xx = -1; xx < 2; xx++) {
 			for (int yy = -1; yy <2; yy++) {
 				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));
@@ -95,11 +96,11 @@ public class JOptionPane {
 			int rh = gf.getFont().getSize() + 3;
 			int rx = (GamePanel.frameW - rw)/2;
 			int ry = GamePanel.frameH/5*3 - gf.getFont().getSize();
-			gf.setColor(Color.WHITE);
+			gf.setColor(Loader.COLOR_TEXT_FG);
 			gf.drawRect(rx - 5, ry - 5,
 					rw + 10,
 					rh + 10);
-			gf.setColor(Color.LIGHT_GRAY);
+			gf.setColor(Loader.COLOR_TEXT_FG2);
 			gf.drawRect(rx - 5, ry - 4,
 					rw + 9,
 					rh + 9);
@@ -140,7 +141,7 @@ public class JOptionPane {
 			
 			drawString(gf, input, textX, ry + gf.getFont().getSize(), Color.WHITE, Color.BLACK);
 
-			gf.setColor(new Color(35,35,35));
+			gf.setColor(Loader.COLOR_GAME_BG);
 			gf.fillRect(rx - 5, ry - 5,
 					rw + 10,
 					rh + 10);
@@ -151,9 +152,9 @@ public class JOptionPane {
 			break;
 		}
 		
-		gf.setColor(Color.WHITE);
+		gf.setColor(Loader.COLOR_TEXT_FG);
 		gf.drawRect(x, y, w, h);
-		gf.setColor(Color.BLACK);
+		gf.setColor(Loader.COLOR_TEXT_BG);
 		gf.fillRect(x, y, w, h);
 		
 		gf.setColor(new Color(0,0,0,200));

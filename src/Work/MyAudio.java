@@ -1,5 +1,8 @@
 package Work;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+
 import javax.sound.sampled.*;
 
 public class MyAudio {
@@ -9,12 +12,17 @@ public class MyAudio {
 	
 	public MyAudio(String s) {
 		try {
-			AudioInputStream ais =
-				AudioSystem.getAudioInputStream(
-					getClass().getResource(///AsStream
-						s
-					)
-				);
+			AudioInputStream ais;
+			if(MyFile.pack == null) {
+				ais = AudioSystem.getAudioInputStream(getClass().getResource/*AsStream*/(s));
+			}else {
+				try {
+					ais = AudioSystem.getAudioInputStream(new File(
+							System.getProperty("user.dir") + "\\data\\packs\\" + MyFile.pack + s));
+				} catch (FileNotFoundException e) {
+					ais = AudioSystem.getAudioInputStream(getClass().getResource/*AsStream*/(s));
+				}
+			}
 			AudioFormat baseFormat = ais.getFormat();
 			AudioFormat decodeFormat = new AudioFormat(
 				AudioFormat.Encoding.PCM_SIGNED,

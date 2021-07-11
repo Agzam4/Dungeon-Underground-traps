@@ -87,13 +87,13 @@ public class PacksStage extends Stage {
 				gf.fillRect(15, y, GamePanel.frameW-60, packBlockH);
 			}
 			gf.setColor(Color.WHITE);
+			drawPackIco(gf, y, id);
+			gf.setColor(packs[id] == MyFile.pack ? Color.GREEN : Color.WHITE);
 			gf.drawRect(15, y, GamePanel.frameW-60, packBlockH);
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, packBlockH/2));
 			drawString(gf, MyFile.getPackName(id) + "", packBlockH+25, (int) (y+packBlockH/3d*2));
-			gf.setColor(new Color(0,0,0,150));
+			gf.setColor(new Color(0,packs[id] == MyFile.pack ? 50 : 0,0,150));
 			gf.fillRect(15, y, GamePanel.frameW-60, packBlockH);
-			gf.setColor(Color.WHITE);
-			drawPackIco(gf, y, id);
 			id++;
 			if(id+1 > packs.length) {
 				break;
@@ -156,6 +156,8 @@ public class PacksStage extends Stage {
 		for (int i = 0; i < packs.length; i++) {
 			if(onMouse == i && MouseController.isMousePressed) {
 				Loader.reload(packs[i]);
+				GameData.reloadText();
+				GameStage.reloadMusic();
 			}
 		}
 		
@@ -181,20 +183,22 @@ public class PacksStage extends Stage {
 
 	@Override
 	protected void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	protected void releasedAll() {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	protected LevelGenerator getLevelGenerator() {
-		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	protected void reloadTexts() {
+		button.setText(GameData.texts[GameData.TEXT_BACK]);
 	}
 
 }

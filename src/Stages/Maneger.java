@@ -106,4 +106,12 @@ public class Maneger {
 		if(stages[selected] != null)
 		stages[selected].releasedAll();
 	}
+	
+	
+	public void reloadTexts() {
+		for (Stage stage : stages) {
+			if(stage != null)
+				stage.reloadTexts();
+		}
+	}
 }

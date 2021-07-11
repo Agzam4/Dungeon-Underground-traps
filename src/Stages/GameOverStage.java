@@ -312,4 +312,9 @@ public class GameOverStage extends Stage {
 		
 	}
 
+	@Override
+	protected void reloadTexts() {
+		// TODO Auto-generated method stub
+	}
+
 }

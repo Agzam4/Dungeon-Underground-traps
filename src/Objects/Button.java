@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import Main.GamePanel;
+import Work.Loader;
 import Work.MouseController;
 import Work.MyAudio;
 
@@ -49,9 +50,9 @@ public class Button {
 	Color bc = Color.BLACK;
 	
 	private void drawString(Graphics2D gf, String str, int x, int y) {
-		gf.setColor(clickable ? (!chageSize && onButton) ?  sc : fc : ufc);
+		gf.setColor(clickable ? (!chageSize && onButton) ?  Loader.COLOR_TEXT_FG.darker() : Loader.COLOR_TEXT_FG : Loader.COLOR_TEXT_FG2);
 		gf.drawString(str, x, y);
-		gf.setColor(bc);
+		gf.setColor(Loader.COLOR_TEXT_BG);
 		for (int xx = -1; xx < 2; xx++) {
 			for (int yy = -1; yy <2; yy++) {
 				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));

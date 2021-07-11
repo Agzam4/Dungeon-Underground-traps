@@ -1,5 +1,6 @@
 package Work;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -9,13 +10,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.sql.rowset.serial.SerialStruct;
 import javax.swing.JOptionPane;
 
+import Main.GamePanel;
 import Objects.AchievementBlock;
 
 public class GameData {
 	
 	public static final String language = getLanguage();
+	
+	public static String packName = getPackName();
 	public static int totalGold = getTotalInt("g");
 	public static int totalDiamonds = getTotalInt("d");
 	public static long totalTime = getTotalTime();
@@ -41,7 +46,7 @@ public class GameData {
 	
 	public static boolean achievements[] = loadBooleanArray("a", 16);//loadAchievements();
 
-	public static final String texts[] = loadTexts();
+	public static String texts[] = loadTexts();
 	public static final int TEXT_PLAY = 0;
 	public static final int TEXT_SEED = 1;
 	public static final int TEXT_SHOP = 2;
@@ -82,6 +87,11 @@ public class GameData {
 	public static final int TEXT_RESUME = 37;
 	public static final int TEXT_FAST_LOSE = 38;
 	
+	public static void reloadText() {
+		texts = loadTexts();
+		GamePanel.reloadTexts();
+	}
+
 	private static ArrayList<AchievementBlock> blocks = new ArrayList<AchievementBlock>();
 	public static void complitedAchievements(int id) {
 		if(achievements[id])
@@ -153,6 +163,16 @@ public class GameData {
 		
 		try {
 			MyFile.writeFile("data/saves/.q", quality + "");
+		} catch (IOException e1) {
+		}
+
+		try {
+			String mydata = "";
+			if(MyFile.pack != null)
+				for (char c : MyFile.pack.toCharArray()) {
+					mydata += (int)c + "\n";
+				}
+			MyFile.writeFile("data/saves/.pn", MyFile.pack == null ? "" : mydata);
 		} catch (IOException e1) {
 		}
 		
@@ -255,6 +275,21 @@ public class GameData {
 		return bs;
 	}
 	
+	private static String getPackName() {
+		String name[] = MyFile.readFile("data/saves/.pn").split("\n");
+		if(name.length < 1)
+			return "";
+		char[] cs = new char[name.length];
+		for (int i = 0; i < name.length; i++) {
+			try {
+				cs[i] = (char) Integer.valueOf(name[i]).intValue();
+			} catch (NumberFormatException e) {
+				return "";
+			}
+		}
+		return new String(cs);
+	}
+	
 	private static int getTotalInt(String type) {
 		try {
 			String file[] = (MyFile.readFile("data/saves/.t" + type)+" 0 0").split(" ");
@@ -282,7 +317,8 @@ public class GameData {
 	}
 	
 	private static String[] loadTexts() {
-		return MyFile.readFileInResource("/text/texts." + language).split("\n");
+		return MyFile.readPackFile("/text/texts." + language).split("\n");
+//		return MyFile.readFileInResource("/text/texts." + language).split("\n");
 	}
 	
 	public static String hashString(String string) {

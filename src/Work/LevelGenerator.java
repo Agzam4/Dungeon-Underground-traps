@@ -514,6 +514,21 @@ public class LevelGenerator {
 			setBlock(x, y, BLOCK_AIR);
 	}
 	
+	public boolean isVoidBlock(int x, int y) {
+		int type = getBlock(x, y);
+		return BLOCK_LADDER == type || BLOCK_PLATE == type ||
+				BLOCK_AIR == type 	|| BLOCK_PLATE_ACTIVATE == type ||
+				BLOCK_GOLD == type 	|| BLOCK_DIAMOND == type;
+	}
+	
+	public boolean isNotVoidBlock(int x, int y) {
+		int type = getBlock(x, y);
+		return BLOCK_STONE == type || BLOCK_MOSSY_STONE == type ||
+				BLOCK_MAGMA == type || BLOCK_MAGMA_HALF == type ||
+				BLOCK_STONE_HALF == type || BLOCK_STONE_STICK == type ||
+				BLOCK_DART == type 	|| BLOCK_IRON == type;
+	}
+	
 	private boolean isReplaseble(int x, int y) {
 		int type = getBlock(x, y);
 		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE || type == BLOCK_PLATE;

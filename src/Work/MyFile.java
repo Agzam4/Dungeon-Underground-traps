@@ -2,6 +2,7 @@ package Work;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -98,7 +99,7 @@ public class MyFile {
 			try {
 				BufferedImage tileset = ImageIO.read(new File(System.getProperty("user.dir") + "\\data\\packs\\" + packsList.get(i-1) + "\\img\\tileset\\Dungeon_Underground_traps.png"));
 				int w = tileset.getWidth()/7 ;
-				icos[i] = new BufferedImage(w*2, w*2, BufferedImage.TYPE_INT_RGB);
+				icos[i] = new BufferedImage(w*2, w*2, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D g = (Graphics2D) icos[i].getGraphics();
 				g.drawImage(tileset.getSubimage(w, 0, w, w), 0, 0, null); 
 				g.drawImage(tileset.getSubimage(w*6, 0, w, w), 0, w, null);
@@ -106,7 +107,7 @@ public class MyFile {
 				g.drawImage(tileset.getSubimage(w*2, 0, w, w), w, w, null);
 				g.dispose();
 			} catch (IOException e) {
-				icos[i] = new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB);
+				icos[i] = new BufferedImage(1, 1, BufferedImage.TYPE_INT_ARGB);
 			}
 		}
 		return icos;
@@ -195,6 +196,21 @@ public class MyFile {
 				System.err.println("Err of loading: " + name);
 				return readImageAsStream(name);
 			}
+		}
+	}
+	
+	public static String readPackFile(String name) {
+		System.err.println(pack);
+		if(pack == null)
+			return readFileInResource(name);
+		String string = "";
+		try {
+			System.err.println("Text from Pack: " + System.getProperty("user.dir") + "\\data\\packs\\" + pack + "\\" + name);
+			byte[] all = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\data\\packs\\" + pack + "\\" + name));
+			string = new String(all);
+			return string;
+		} catch (IOException e) {
+			return readFileInResource(name);
 		}
 	}
 	

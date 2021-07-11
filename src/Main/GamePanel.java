@@ -123,7 +123,7 @@ public class GamePanel extends JPanel implements KeyListener {
 						start = System.nanoTime();
 						draw((Graphics2D)getGraphics());
 						wait = sleep - (System.nanoTime() - start)/1000000;
-						if(wait < 0) wait = 5;
+						if(wait < 0) wait = 1;
 						try {
 							Thread.sleep(wait);
 						} catch (InterruptedException e) {
@@ -351,4 +351,8 @@ public class GamePanel extends JPanel implements KeyListener {
 		System.out.println("Quality: " + quality);
 	}
 	
+	
+	public static void reloadTexts() {
+		maneger.reloadTexts();
+	}
 }

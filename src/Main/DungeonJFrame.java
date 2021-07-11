@@ -26,7 +26,13 @@ public class DungeonJFrame extends JFrame {
 	 */
 	public static void main(String[] args) {
 		MyFile.checkSavesFolder();
-		Loader.reload("tmp");
+		try {
+			Loader.reload(GameData.packName.equals("") ? null : GameData.packName);
+		} catch (Exception e) {
+			Loader.reload(null);
+		}
+		GameData.reloadText();
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {

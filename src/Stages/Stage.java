@@ -14,5 +14,9 @@ public abstract class Stage {
 	protected abstract void keyPressed(KeyEvent e);
 	protected abstract void keyReleased(KeyEvent e);
 	protected abstract void releasedAll();
+	
+
+	protected abstract void reloadTexts();
+	
 	protected abstract LevelGenerator getLevelGenerator();
 }

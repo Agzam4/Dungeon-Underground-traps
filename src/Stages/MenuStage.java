@@ -13,6 +13,7 @@ import Objects.Button;
 import Objects.JOptionPane;
 import Work.GameData;
 import Work.LevelGenerator;
+import Work.Loader;
 import Work.MouseController;
 import Work.MyAudio;
 
@@ -67,7 +68,7 @@ public class MenuStage extends Stage {
 		setStroke(gf, 3);
 		drawLines(gf, " Dungeon ", (int) ((1.5)*dist));
 		
-		gf.setPaint(GameOverStage.getGradient(Color.DARK_GRAY));
+		gf.setPaint(GameOverStage.getGradient(Loader.COLOR_GAME_BG));
 		gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 		
 	}
@@ -109,8 +110,6 @@ public class MenuStage extends Stage {
 		
 	}
 
-	Color colors[] = {Color.WHITE, Color.BLACK};
-	
 	private void drawCenterString(Graphics2D gf, String str, int y) {
 		int w = gf.getFontMetrics().stringWidth(str);
 //		gf.setColor(Color.GREEN);
@@ -119,9 +118,9 @@ public class MenuStage extends Stage {
 	}
 	
 	private void drawString(Graphics2D gf, String str, int x, int y) {
-		gf.setColor(colors[0]);
+		gf.setColor(Loader.COLOR_TEXT_FG);
 		gf.drawString(str, x, y);
-		gf.setColor(colors[1]);
+		gf.setColor(Loader.COLOR_TEXT_BG);
 		for (int xx = -1; xx < 2; xx++) {
 			for (int yy = -1; yy <2; yy++) {
 				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));
@@ -226,6 +225,13 @@ public class MenuStage extends Stage {
 
 	@Override
 	protected void releasedAll() {
+	}
+
+	@Override
+	protected void reloadTexts() {
+		for (int i = 0; i < myButtons.length; i++) {
+			myButtons[i].setText(GameData.texts[i]);
+		}
 	}
 
 }

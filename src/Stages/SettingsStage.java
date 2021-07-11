@@ -66,7 +66,7 @@ public class SettingsStage extends Stage {
 			settings[i].draw(gf);
 		}
 		
-		gf.setColor(Color.WHITE);
+		gf.setColor(Loader.COLOR_TEXT_FG);
 		sh = (GamePanel.frameH/6*4 - 5)/150;
 		gf.drawRect(sx+5, 5, GamePanel.frameW - sx - 30, sh*150);
 		setSize(gf, 15);
@@ -87,7 +87,7 @@ public class SettingsStage extends Stage {
 			break;
 		}
 
-		gf.setPaint(GameOverStage.getGradient(Color.DARK_GRAY));
+		gf.setPaint(GameOverStage.getGradient(Loader.COLOR_GAME_BG));
 		gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 	}
 	
@@ -97,7 +97,7 @@ public class SettingsStage extends Stage {
 	Button deleteprogress = new Button(GameData.texts[GameData.TEXT_DELETE_PROGRESS], 0, 0);
 	
 	private void drawControl(Graphics2D gf) {
-		drawCenterString(gf, GameData.texts[GameData.TEXT_CONTROL], 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_CONTROL], 1, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		setSize(gf, 10);
 		maxXControl = 0;
 
@@ -119,11 +119,11 @@ public class SettingsStage extends Stage {
 		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_DOWN]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[3]))/2);
 		updateMaxXControl(gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_RIGHT]) + gf.getFontMetrics().stringWidth(KeyEvent.getKeyText(GameData.control[4]))/2);
 		
-		drawString(gf, GameData.texts[GameData.TEXT_PAUSE], 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_UP], 15, 				35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_LEFT], 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_DOWN], 15, 			55, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_RIGHT], 15, 			65, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_PAUSE], 15, 			25, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_UP], 15, 				35, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_LEFT], 15, 			45, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_DOWN], 15, 			55, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_RIGHT], 15, 			65, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		for (int i = 0; i < setControl.length; i++) {
 			setControl[i].draw(gf);
 		}
@@ -143,17 +143,17 @@ public class SettingsStage extends Stage {
 	Button packs = new Button("Packs", 0, 0);
 	
 	private void drawGraphics(Graphics2D gf) {
-		drawCenterString(gf, GameData.texts[GameData.TEXT_GRAPHICS], 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_GRAPHICS], 1, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		setSize(gf, 10);
 		sgqt = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality) + 25 + sgqm;
-		drawString(gf, GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality, 25 + sgqm, 25, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_GAME_QUALITY] + GameData.quality, 25 + sgqm, 25, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		if(Loader.minQuality > GameData.quality)
 			drawString(gf, "! " + GameData.texts[GameData.TEXT_GAME_QUALITY] + "< " + Loader.minQuality, 25 + sgqt + plus.getBw(), 25, new Color(50,0,0), new Color(250,0,0,100));
 		plus.draw(gf);
 		minus.draw(gf);
 		packs.draw(gf);
 		setSize(gf, 7);
-		drawString(gf, GameData.texts[GameData.TEXT_GRAPHICS_INFO], 15, 55, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_GRAPHICS_INFO], 15, 55, Loader.COLOR_TEXT_FG2, Loader.COLOR_TEXT_BG);
 	}
 	
 	String audioV[] = (GameData.texts[GameData.TEXT_VOLUME] + "/0%/50%/100%").split("/");
@@ -161,7 +161,7 @@ public class SettingsStage extends Stage {
 	int audioW[] = new int[3];
 	
 	private void drawAudio(Graphics2D gf) {
-		drawCenterString(gf, GameData.texts[GameData.TEXT_AUDIO], 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_AUDIO], 1, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		setSize(gf, 10);
 		audioW[0] = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_MUSIC]);
 		audioW[1] = gf.getFontMetrics().stringWidth(GameData.texts[GameData.TEXT_SOUNDS]);
@@ -169,16 +169,16 @@ public class SettingsStage extends Stage {
 		audioW[0] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[0]])/2;
 		audioW[1] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[1]])/2;
 		audioW[2] += gf.getFontMetrics().stringWidth(audioV[GameData.audio[2]])/2;
-		drawString(gf, GameData.texts[GameData.TEXT_MUSIC], 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_SOUNDS], 15, 			35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_SOUND_OF_ACHIEVEMENT], 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_MUSIC], 15, 			25, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_SOUNDS], 15, 			35, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_SOUND_OF_ACHIEVEMENT], 15, 			45, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		for (int i = 0; i < audioButtons.length; i++) {
 			audioButtons[i].draw(gf);
 		}
 
 		setSize(gf, 7);
-		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_0], 15, 65, Color.GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_1], 15, 75, Color.GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_0], 15, 65, Loader.COLOR_TEXT_FG2, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_AUDIO_INFO_1], 15, 75, Loader.COLOR_TEXT_FG2, Loader.COLOR_TEXT_BG);
 		
 	}
 	
@@ -198,14 +198,14 @@ public class SettingsStage extends Stage {
 		String p = "";
 		if(GameData.totalLevels != 0)
 			p = " (" + GameData.totalWins*100/GameData.totalLevels + "%)";
-		drawCenterString(gf, GameData.texts[GameData.TEXT_GAME], 1, Color.WHITE, Color.BLACK);
+		drawCenterString(gf, GameData.texts[GameData.TEXT_GAME], 1, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		setSize(gf, 10);
-		drawString(gf, GameData.texts[GameData.TEXT_TIME] + formattedDate, 15, 			25, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_LEVELS] + GameData.totalLevels, 15, 		35, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_WINS] + GameData.totalWins + p, 15, 			45, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_GOLD] + GameData.totalGold, 15, 			55, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_DIAMONDS] + GameData.totalDiamonds, 15, 	65, Color.LIGHT_GRAY, Color.BLACK);
-		drawString(gf, GameData.texts[GameData.TEXT_ACHIEVEMENTS2] + achievements + "/" + GameData.achievements.length, 15, 75, Color.LIGHT_GRAY, Color.BLACK);
+		drawString(gf, GameData.texts[GameData.TEXT_TIME] + formattedDate, 15, 			25, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_LEVELS] + GameData.totalLevels, 15, 		35, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_WINS] + GameData.totalWins + p, 15, 			45, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_GOLD] + GameData.totalGold, 15, 			55, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_DIAMONDS] + GameData.totalDiamonds, 15, 	65, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
+		drawString(gf, GameData.texts[GameData.TEXT_ACHIEVEMENTS2] + achievements + "/" + GameData.achievements.length, 15, 75, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG);
 		fullscreen.draw(gf);
 		deleteprogress.draw(gf);
 	}
@@ -383,5 +383,14 @@ public class SettingsStage extends Stage {
 	@Override
 	protected LevelGenerator getLevelGenerator() {
 		return null;
+	}
+	
+	@Override
+	protected void reloadTexts() {
+		for (int i = 0; i < settings.length; i++) {
+			settings[i].setText(GameData.texts[i+9]);
+		}
+		deleteprogress.setText(GameData.texts[GameData.TEXT_DELETE_PROGRESS]);
+		audioV = (GameData.texts[GameData.TEXT_VOLUME] + "/0%/50%/100%").split("/");
 	}
 }
