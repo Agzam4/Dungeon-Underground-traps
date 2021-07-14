@@ -147,6 +147,9 @@ public class GameData {
 	public static final int KEY_LEFT = 2;
 	public static final int KEY_DOWN = 3;
 	public static final int KEY_RIGHT = 4;
+	
+
+	public static String username = System.getProperty("user.name");
 
 
 	public static int[] defControl = {KeyEvent.VK_ESCAPE,KeyEvent.VK_UP,

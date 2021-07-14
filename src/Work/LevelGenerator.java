@@ -8,8 +8,14 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 import Game.Tile;
+import Multiplayer.GameServer;
 
 public class LevelGenerator {
+
+	public static final int TYPE_OFFLINE = 0;
+	public static final int TYPE_ONLINE_REACHER = 1;
+	public static final int TYPE_ONLINE_RUN = 2;
+//	public static final int TYPE_ONLINE_ = 3;
 
 	public final int BLOCK_AIR = 1;
 	public final int BLOCK_STONE = 2;
@@ -111,7 +117,7 @@ public class LevelGenerator {
 	int fx; // Финиш X
 	int fy; // Финиш Y
 	
-	public void generate(int w, int h) {
+	public void generate(int w, int h, int mode) { // TODO
 		finishPoints = new ArrayList<Point>();
 		level = new int[w][h];
 		height = h;
@@ -131,7 +137,7 @@ public class LevelGenerator {
 		while (generating) {
 			for (int i = 0; i < h*w/2; i++) {
 				try {
-					room();
+					room(mode);
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 				}
@@ -143,12 +149,21 @@ public class LevelGenerator {
 			}
 			System.out.println("# " +finishPoints.size());
 			generating = finishPoints.size() == 0;
+			if(!generating) {
+				if(mode != TYPE_OFFLINE) {
+					calculate();
+					generating = gold*GameServer.SCORE_GOLD + diamonds*GameServer.SCORE_DIAMOND < (width*height)/25;
+				}
+			}
 			tryings ++;
 			if(tryings > 10) {
+				System.out.println("TRY: #" + tryings);
 				finishPoints.add(new Point(width/2, height/2 - 3));
 				generating = false;
+				break;
 			}
 		}
+		System.out.println("Generated!");
 		
 		// Старт
 		tileX = width/2;
@@ -162,8 +177,8 @@ public class LevelGenerator {
 		setBlock(tileX, tileY, BLOCK_SOLID);
 
 		Point end = finishPoints.get(random.nextInt(finishPoints.size()));
-		finish(end.x, end.y);
-		
+		if(mode != TYPE_ONLINE_REACHER)
+			finish(end.x, end.y);
 		
 		tiles = new Tile[w][h];
 
@@ -178,7 +193,7 @@ public class LevelGenerator {
 	
 	ArrayList<Point> finishPoints;
 	
-	private void calculate() {
+	public void calculate() {
 		gold = 0;
 		diamonds = 0;
 		for (int x = 0; x < width; x++) {
@@ -191,6 +206,11 @@ public class LevelGenerator {
 				}
 			}
 		}
+	}
+	
+	public long getScore() {
+		calculate();
+		return gold*GameServer.SCORE_GOLD + diamonds*GameServer.SCORE_DIAMOND;
 	}
 	
 	private void finish(int xx, int yy) {
@@ -206,7 +226,7 @@ public class LevelGenerator {
 		setBlock(xx, yy-1, BLOCK_CHEST);
 	}
 	
-	private void room() {
+	private void room(int type) {
 		roomX = 0;
 		roomY = 0;
 		ArrayList<Integer> dirs = new ArrayList<Integer>();
@@ -252,13 +272,13 @@ public class LevelGenerator {
 			while ((9 > roomX) && 2 == getBlock(tileX+roomX+1, tileY+roomY)) {
 				treasures(tileX+roomX, tileY+roomY);
 				rope();
-//				if(5 < air) {
-					spiky(tileX+roomX, tileY+roomY);
+				spiky(tileX+roomX, tileY+roomY);
+				if(type == TYPE_OFFLINE) {
 					dart(tileX+roomX, tileY+roomY, false);
 					door(tileX+roomX, tileY+roomY);
-					// TODO: Saw
-					crusher(tileX+roomX, tileY+roomY);
-//				}
+				}
+				// TODO: Saw
+				crusher(tileX+roomX, tileY+roomY);
 				roomX++;
 			}
 			if(1 == getBlock(tileX+roomX,tileY+roomY-1) || 2 == getBlock(tileX+roomX,tileY+roomY-1)) {
@@ -289,15 +309,11 @@ public class LevelGenerator {
 		if(dir == 3) { // Влево
 			while ((-9 < roomX) && 2 == getBlock(tileX+roomX-1, tileY+roomY)) { //(1 != getBlock(tileX, tileY-1)
 				treasures(tileX+roomX, tileY+roomY);
-				// TODO: update
 				rope();
-//				if(5 < air) {
-					// Лава
+				if(type == TYPE_OFFLINE)
 					tnt(tileX+roomX, tileY+roomY);
-					lakeOfLava(tileX+roomX, tileY+roomY);
-					spiky(tileX+roomX, tileY+roomY);
-					// TODO
-//				}
+				lakeOfLava(tileX+roomX, tileY+roomY);
+				spiky(tileX+roomX, tileY+roomY);
 				roomX--;
 			}
 			if(1 == getBlock(tileX+roomX,tileY+roomY-1) || 2 == getBlock(tileX+roomX,tileY+roomY-1)) {
@@ -775,6 +791,25 @@ public class LevelGenerator {
 							setTile(xx+x, yy+y-2, BLOCK_MAGMA_HALF);
 						}
 					}
+				}
+			}
+		}
+	}
+
+	public void setMap(int[][] map) {
+		width = map[0].length;
+		height = map.length;
+		System.out.println(width + "x" + height);
+		level = new int[width][height];
+		tiles = new Tile[width][height];
+
+		for (int x = 0; x < width; x++) {
+			for (int y = 0; y < height; y++) {
+				try {
+					level[x][y] = map[x][y];
+					tiles[x][y] = new Tile(level[x][y]-1, x*16, y*16);
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
 				}
 			}
 		}

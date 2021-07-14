@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import Main.GamePanel;
+import Multiplayer.GameClient;
 import Objects.Button;
 import Objects.Dart;
+import Objects.OtherPlayers;
 import Objects.Player;
 import Work.GameData;
 import Work.LevelGenerator;
@@ -49,11 +51,16 @@ public class GameStage extends Stage {
 	long times;
 	
 	public GameStage(Maneger maneger, Long seed) {
+		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+		music.play(-1);
+		init(maneger, seed, 100, 100, 0);
+		setPositions();
+	}
+	
+	private void init(Maneger maneger, Long seed, int mw, int mh, int mode) {
 		times = System.nanoTime() - GameData.totalTime*1_000_000;
 		this.maneger = maneger;
-		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
 		music.setVolume(GameData.audio[GameData.AUDIO_MUSIC]/2f);
-		music.play(-1);
 		
 		for (int i = 0; i < sounds.length; i++) {
 			sounds[i] = new MyAudio("/sounds/" + soundsNames[i] + ".wav");
@@ -67,7 +74,16 @@ public class GameStage extends Stage {
 		else
 			level = new LevelGenerator(seed);
 			
-		level.generate(100, 100);
+		level.generate(mw, mh, mode);
+
+		pButtons[0] = new Button(GameData.texts[GameData.TEXT_RESUME], 0, 0);
+		pButtons[1] = new Button(GameData.texts[GameData.TEXT_FAST_LOSE], 0, 0);
+		pButtons[2] = new Button(GameData.texts[GameData.TEXT_ACHIEVEMENTS], 0, 0);
+		pButtons[3] = new Button(GameData.texts[GameData.TEXT_SETTINGS], 0, 0);
+		pButtons[4] = new Button(GameData.texts[GameData.TEXT_MENU], 0, 0);
+	}
+	
+	private void setPositions() {
 		mapX = level.getWidth()*tilesize/2;
 		mapY = level.getHeight()*tilesize/2;
 		fx = level.getFinishX()*tilesize;
@@ -75,30 +91,48 @@ public class GameStage extends Stage {
 
 		player = new Player(level);
 		player.setPosition(mapX, mapY-tilesize);
-		
-//		BufferedImage tileset = null;
-//		try {
-//			tileset = ImageIO.read(GameStage.class.getResourceAsStream("/img/tileset/Dungeon_Underground_traps.png"));
-//		} catch (IOException e) {
-//		}
-//		int w = tileset.getWidth()/tilesize;
-//		int h = tileset.getHeight()/tilesize;
-//		
-//		tiles = new BufferedImage[w*h];
-//		int id = 0;
-//
-//		for (int y = 0; y < h; y++) {
-//			for (int x = 0; x < w; x++) {
-//				tiles[id] = tileset.getSubimage(x*tilesize, y*tilesize, tilesize, tilesize);
-//				id++;
-//			}
-//		}
+	}
+	
+	GameClient client;
 
-		pButtons[0] = new Button(GameData.texts[GameData.TEXT_RESUME], 0, 0);
-		pButtons[1] = new Button(GameData.texts[GameData.TEXT_FAST_LOSE], 0, 0);
-		pButtons[2] = new Button(GameData.texts[GameData.TEXT_ACHIEVEMENTS], 0, 0);
-		pButtons[3] = new Button(GameData.texts[GameData.TEXT_SETTINGS], 0, 0);
-		pButtons[4] = new Button(GameData.texts[GameData.TEXT_MENU], 0, 0);
+	public GameStage(Maneger maneger, GameClient client) { // TODO
+		System.err.println("Starting client");
+		music = new MyAudio("/music/Dungeon_Underground_Traps_online_0.wav");
+		music.play(-1);
+		init(maneger, null, 25, 25, 0);
+
+		pButtons[1].clickable = false;
+		pButtons[2].clickable = false;
+		pButtons[3].clickable = false;
+		this.client = client;
+		level = null;
+//		this.client.setLg(level);
+		System.err.println("Wating map...");
+		while (level == null) {
+			while (!this.client.isMapGet) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+			}
+			System.out.println(level + " " + this.client.lg);
+			level = this.client.lg;
+			if(client.needExit) {
+				break;
+			}
+		}
+		System.err.println("Map load!");
+		if(client.needExit) {
+			maneger.setMultiplayer(client.exitMsg);
+			return;
+		}
+		System.err.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+		setPositions();
+		player.setImg(Loader.PLAYER2);
 	}
 
 	double fx;
@@ -128,10 +162,22 @@ public class GameStage extends Stage {
 	Button[] pButtons = new Button[5];
 	
 	
+	int normalTime = 0;
+	private static String getTime(int ts) {
+		int s = ts%60;
+		int m = (ts-s)/60; 
+		return m + ":" + (s < 10 ? "0" + s : s);
+	}
+	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
 
 		GameData.drawAchievementBlock(gf);
+
+		if(retime > 0) {
+			System.err.println(retime);
+			gf.drawString("" + retime, GamePanel.frameW/2,  GamePanel.frameH/2);
+		}
 		
 		if(paused && !isGameOver) {
 			for (int i = 0; i < pButtons.length; i++) {
@@ -148,8 +194,15 @@ public class GameStage extends Stage {
 //		int cx = (int) (GamePanel.getCountWidth()*GamePanel.quality*8 - GamePanel.getGameWidth()/2);
 ////		System.out.println(GamePanel.getCountWidth()*GamePanel.quality*8f);
 ////		System.out.println(GamePanel.getGameWidth()/2);
+		
 		mapX = (mapX - player.getX()) * 0.0 + player.getX();
 		mapY = (mapY - player.getY()) * 0.0 + player.getY();
+		if(client != null) {
+			if(!client.isPlaying) {
+				mapX = client.getViewX();
+				mapY = client.getViewY();
+			}
+		}
 		mapX2 *= -GameData.screenShake;
 		mapY2 *= -GameData.screenShake;
 		mapY2 = Math.round(mapY2*100)/100f;
@@ -292,13 +345,19 @@ public class GameStage extends Stage {
 			}
 		}
 
-		if(isGameOver) {
+		if(isGameOver && client == null) {
 			if(overStage != null)
 				overStage.draw(g, gf);
 			return;
 		}
+
+		if(client != null) {
+			client.drawPlayers(g);
+			player.setColor(OtherPlayers.getColor(client.clientID, client.getPlayersCount()));
+		}
 		
 		player.draw(g);
+		
 		
 		
 		if(GameData.lavaLight) {
@@ -318,6 +377,7 @@ public class GameStage extends Stage {
 //		g.drawLine(GamePanel.getGameWidth()/2, 0, GamePanel.getGameWidth()/2, GamePanel.getGameHeight());
 //		g.drawLine(0, GamePanel.getGameHeight()/2, GamePanel.getGameWidth(), GamePanel.getGameHeight()/2);
 
+		if(client == null) {
 		gf.setColor(new Color(37,107,142));//240,235,16));
 		gf.drawImage(Loader.tileset[level.BLOCK_DIAMOND-1],
 				(int) ((0)*GamePanel.scalefull),
@@ -339,8 +399,53 @@ public class GameStage extends Stage {
 		gf.drawString("" + gold,
 				(int) ((11)*GamePanel.scalefull),
 				(int) ((18)*GamePanel.scalefull));//+gf.getFont().getSize()/2
-		
-	}
+		} else {
+			gf.setColor(new Color(94,249,156));
+			String time = "Time: " + getTime(client.normalTime);
+			gf.drawString(time,
+					(GamePanel.frameW-gf.getFontMetrics().stringWidth(time))/2,
+					(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+			gf.setColor(Color.WHITE);
+			gf.drawString("Score: " + client.score + "/" + (client.scoreLast+client.score),
+					(int) ((2)*GamePanel.scalefull),
+					(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+			try {
+				int y = (int) (((4)*GamePanel.scalefull) + gf.getFont().getSize()*2);
+				String lines[] = client.leadBoard.split(";");
+				for (String line : lines) {
+					String data[] = line.split("/");
+					int id = Integer.valueOf(data[0]);
+					gf.setFont(new Font("Comic Sans MS", Font.PLAIN, gf.getFont().getSize()));
+					gf.setColor(OtherPlayers.getColor(id, client.getPlayersCount()));
+					if(id == client.clientID) {
+						gf.setColor(OtherPlayers.getColorLight(id, client.getPlayersCount()));
+						gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
+					}
+					gf.drawString(data[1], (int) ((2)*GamePanel.scalefull), y);
+
+					y += gf.getFont().getSize()*1.5;
+				}
+
+				gf.drawString("isPlaying: " + client.isPlaying,
+						(int) ((2)*GamePanel.scalefull),
+						y + gf.getFont().getSize());
+			} catch (NumberFormatException e) {
+			}
+			
+			
+			gf.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
+			gf.setColor(new Color(255,100,100));
+			if(!isReady) {
+				radius = 0.01f;
+				int tw = gf.getFontMetrics().stringWidth("Press ENTER if you ready");
+				gf.drawString("Press ENTER if you ready", (GamePanel.frameW-tw)/2, GamePanel.frameH/3);
+			}else if (!client.isAllReady) {
+				radius = 0.1f;
+				int tw = gf.getFontMetrics().stringWidth("Wating other players");
+				gf.drawString("Wating other players", (GamePanel.frameW-tw)/2, GamePanel.frameH/3);
+			}
+		}
+	} // TODO
 	
 	RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
 			new Point(GamePanel.getGameWidth()/2,GamePanel.getGameHeight()/2),
@@ -352,10 +457,13 @@ public class GameStage extends Stage {
 		if(!(radius > 0)) {
 			radius = 0.1f;
 		}
+		int newR = (int) (GamePanel.getGameHeight()/2f * GameData.visionRadius * radius + (int)(4*GamePanel.quality*Math.cos(gradientT/10d)));
+		if(newR < 0)
+			newR = 1;
 		int g = (int)(5 + 5*Math.cos(gradientT/10d));
 		return new RadialGradientPaint(
 				new Point(GamePanel.getGameWidth()/2,GamePanel.getGameHeight()/2),
-				GamePanel.getGameHeight()/2f * GameData.visionRadius * radius + (int)(4*GamePanel.quality*Math.cos(gradientT/10d)),
+				newR,
 				new float[] { .0f,1f},
 				GameData.lavaLight ? new Color[] {new Color(g,g,255), new Color(0,255,0,10)} : 
 					new Color[] {new Color(0,0,0,0), new Color(g,g,g)});
@@ -372,16 +480,39 @@ public class GameStage extends Stage {
 	int boom_x = -1;
 	int boom_y = -1;
 	
+	int retime = 0;
+	
 	@Override
 	public void update() {
 		GameData.updateAchievementBlock();
+
+		if(client != null) {
+//			if(client.isPlaying)
+				client.sendPosition(mapX, mapY);
+		}
 		
 		if(isGameOver) {
-			if(overStage != null)
-			overStage.update();
-			radius = (radius-1)*0.8f + 1;
-			gradientT = 0;
+			if(client != null) {
+				retime = 100; // TODO
+				mapX = level.getWidth()*tilesize/2;
+				mapY = level.getHeight()*tilesize/2;
+				player.setPosition(mapX, mapY+tilesize-10);
+				isGameOver = false;
+			}else {
+				if(overStage != null)
+					overStage.update();
+				radius = (radius-1)*0.8f + 1;
+				gradientT = 0;
+				return;
+			}
+		}
+		retime--;
+		if(retime > 0) {
 			return;
+		}else if(retime == 0) {
+			player.isGameOver = false;
+			player.setPosition(mapX, mapY-tilesize);
+			retime = -1;
 		}
 		if(boom_time > 0) { // -1014327005907606213
 			boom_time--;
@@ -432,13 +563,25 @@ public class GameStage extends Stage {
 						isGameOver = true;
 						radius = (radius-1)*0.8f + 1;
 						gradientT = 0;
-						maneger.loadStage(Maneger.MENU);
+						if(client != null) {
+							try {
+								client.exit();
+								client = null;
+							} catch (IOException e) {
+								e.printStackTrace();
+								System.exit(0);
+							}
+								maneger.loadStage(Maneger.MENU);
+						}else {
+							maneger.loadStage(Maneger.MENU);
+						}
 						break;
 					default:
 						break;
 					}
 				}
 			}
+			if(client == null)
 			return;
 		}
 		
@@ -486,9 +629,11 @@ public class GameStage extends Stage {
 		if(player.isGameOver && !isGameOver) {
 			isGameOver = true;
 			player.isGameOver = false;
-			overStage = new GameOverStage(music, maneger, player, gold, diamonds, level, this);
-			if(!player.getGameOvers()[0])
-				music.stop();
+			if(client == null) {
+				overStage = new GameOverStage(music, maneger, player, gold, diamonds, level, this);
+				if(!player.getGameOvers()[0])
+					music.stop();
+			}
 		}
 		
 		
@@ -540,50 +685,68 @@ public class GameStage extends Stage {
 					sounds[PLATE_UP].play(0);
 				}
 				if(isHit && t == level.BLOCK_GOLD) {
-					gold++;
-					level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
-					GameData.complitedAchievements(GameData.ACHIEVEMENTS_GOLD);
+					if(client == null) {
+						gold++;
+						level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
+						GameData.complitedAchievements(GameData.ACHIEVEMENTS_GOLD);
+					}else {
+						client.sendRemoveTreasures(x+tileX, y+tileY);
+					}
 				}
 				if(isHit && t == level.BLOCK_DIAMOND) {
-					diamonds++;
-					level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
-					GameData.complitedAchievements(GameData.ACHIEVEMENTS_DIAMOND);
+					if(client == null) {
+						diamonds++;
+						level.setTile(x+tileX, y+tileY, level.BLOCK_AIR);
+						GameData.complitedAchievements(GameData.ACHIEVEMENTS_DIAMOND);
+					}else {
+						client.sendRemoveTreasures(x+tileX, y+tileY);
+					}
 				}
 				
 				level.setHit(x+tileX, y+tileY, false);
 			}
 		}
+		
+
 	}
 	
 	private void setKeys(int key, boolean b) {
-		if(key == GameData.control[GameData.KEY_JUMP])
-			player.setVK_UP(b);
-		if(key == GameData.control[GameData.KEY_DOWN])
-			player.setVK_DOWN(b);
-		if(key == GameData.control[GameData.KEY_RIGHT])
-			player.setVK_RIGHT(b);
-		if(key == GameData.control[GameData.KEY_LEFT])
-			player.setVK_LEFT(b);
+		if(client == null || client.isAllReady) {
+			if(key == GameData.control[GameData.KEY_JUMP])
+				player.setVK_UP(b);
+			if(key == GameData.control[GameData.KEY_DOWN])
+				player.setVK_DOWN(b);
+			if(key == GameData.control[GameData.KEY_RIGHT])
+				player.setVK_RIGHT(b);
+			if(key == GameData.control[GameData.KEY_LEFT])
+				player.setVK_LEFT(b);
+		}
+		if(key == KeyEvent.VK_ENTER && client != null) {
+			if(!isReady)
+				client.sendReady();
+			isReady = true;
+		}
 	}
-	
+
+	boolean isReady = false;
+
 	@Override
 	protected void keyPressed(KeyEvent e) {
-		setKeys(e.getKeyCode(),true);
-//		switch (e.getKeyCode()) {
-//		case :
-//			break;
-//		case KeyEvent.VK_DOWN:
-//			player.setVK_DOWN(true);
-//			break;
-//		case KeyEvent.VK_RIGHT:
-//			player.setVK_RIGHT(true);
-//			break;
-//		case KeyEvent.VK_LEFT:
-//			player.setVK_LEFT(true);
-//			break;
-//		default:
-//			break;
-//		}
+		if(client != null) {
+			if(client.isPlaying) {
+				setKeys(e.getKeyCode(),true);
+			} else {
+
+				if(e.getKeyCode() == GameData.control[GameData.KEY_RIGHT]) {
+					client.nextView();
+				}
+				if(e.getKeyCode() == GameData.control[GameData.KEY_LEFT]) {
+					client.nextLast();
+				}
+			}
+		}else {
+			setKeys(e.getKeyCode(),true);
+		}
 	}
 
 	@Override

@@ -12,8 +12,9 @@ public class Loader {
 	public static int tilesize = 16;
 	public static BufferedImage[] tileset;
 	public static BufferedImage[] achievement_ico;
-	
+
 	public static BufferedImage PLAYER;
+	public static BufferedImage PLAYER2;
 	public static BufferedImage DART;
 
 	public static Color COLOR_GAME_BG;
@@ -48,6 +49,7 @@ public class Loader {
 	public static void reload(String pack) {
 		MyFile.pack = pack;
 		PLAYER =  MyFile.readImage("tileset/player");
+		PLAYER2 =  MyFile.readImage("tileset/player2");
 		DART =  MyFile.readImage("tileset/dart");
 		ACHIEVEMENTS_BG =  MyFile.readImage("bg/achievement_stage");
 		loadTileSet();

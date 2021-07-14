@@ -16,6 +16,7 @@ import Work.Loader;
 public class Player extends GameObject {
 
 	public static int tilesize = GameStage.tilesize;
+	BufferedImage img = Loader.PLAYER;
 	LevelGenerator level;
 	int lw;
 	int lh;
@@ -36,16 +37,8 @@ public class Player extends GameObject {
 	 */
 	String gameover = "";
 	
-	private static BufferedImage getPlayerImg(){
-		try {
-			return ImageIO.read(GameStage.class.getResourceAsStream("/img/tileset/player.png"));
-		} catch (IOException | IllegalArgumentException e) {
-			return new BufferedImage(10, 10, BufferedImage.TYPE_INT_RGB);
-		}
-	}
-	
 	public Player(LevelGenerator level) {
-		super(getPlayerImg());
+		super(Loader.PLAYER);
 		isGameOver = false;
 		this.level = level;
 		lw = level.getWidth() * 16;
@@ -56,11 +49,14 @@ public class Player extends GameObject {
 	public void draw(Graphics2D g) {
 //		double k = GameStage.tilesize*GamePanel.quality;
 		int q = (int) GamePanel.quality;
-		g.drawImage(Loader.PLAYER,
-				(int)((x-GameStage.mapX + GameStage.mapX2 + GamePanel.getGameWidth()/q/2)*q - cx),
-				(int) (y-GameStage.mapY + GameStage.mapY2 + GamePanel.getGameHeight()/2  - cy),
-				(int)(10*GamePanel.quality),
-				(int) (10*GamePanel.quality), null);
+		int nx = (int) ((x-GameStage.mapX + GameStage.mapX2 + GamePanel.getGameWidth()/q/2)*q - cx);
+		int ny = (int) (y-GameStage.mapY + GameStage.mapY2 + GamePanel.getGameHeight()/2  - cy);
+		int nd = (int) (10*GamePanel.quality);
+		if(c != null) {
+			g.setColor(c);
+			g.fillRect(nx, ny, nd, nd);
+		}
+		g.drawImage(img, nx, ny, nd, nd, null);
 
 //		g.setColor(Color.RED);
 //		int xx = (int)((x-GameStage.mapX + GameStage.mapX2 + GamePanel.getGameWidth()/q/2)*q - cx);
@@ -73,14 +69,16 @@ public class Player extends GameObject {
 
 	double vx;
 	double vy;
+	
+	private double speed = 1;
 
 	@Override
 	public void update() {
 		cx = 5*GamePanel.quality;//-0.1;
 		cy = 5*GamePanel.quality;
 		
-		if(isVK_RIGHT)	vx += 1;
-		if(isVK_LEFT) vx -= 1;
+		if(isVK_RIGHT)	vx += speed;
+		if(isVK_LEFT) vx -= speed;
 		
 //		x += vx;
 		for (int i = 0; i < Math.abs(vx)-1; i++) {
@@ -315,5 +313,18 @@ public class Player extends GameObject {
 	
 	public void setGameOver(int id) {
 		gameOvers[id] = true;
+	}
+	
+	public void setSpeed(double speed) {
+		this.speed = speed;
+	}
+	
+	Color c = null;
+	
+	public void setColor(Color c) {
+		this.c = c;
+	}
+	public void setImg(BufferedImage img) {
+		this.img = img;
 	}
 }

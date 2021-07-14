@@ -8,12 +8,29 @@ public class Test {
 	static String blocks = "S ##>__^^=|_I^ @FN^``**B  V";
 
 	public static void main(String[] args) {
-		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
-		for (Field f : fields) {
-		    if (Modifier.isStatic(f.getModifiers())) {
-		        System.out.println(f.getName());
-		    } 
+		int plusTime = 60*5;
+		for (int i = 50; i < 1050; i+=50) {
+			long blocks = i*i;
+			int ts = (int) Math.round(((blocks)/50_000d) * 60d);
+			System.err.println("Карта: " + i + "x" + i + ":   \tВсего времени ~" + getTime(ts+plusTime) + "\n");
+			for (int players = 2; players < 16; players+=1) {
+				int onplayer = (int) (
+						(ts)
+						/
+						(double)(players-1)
+						);
+				if(onplayer < 30) onplayer = 30;
+				System.out.println(" Игроков: " + players + "\t На игрока: " + getTime(onplayer) + "    \t\t Всего: " + getTime(onplayer * (players-1) + plusTime));//getTime(ts));
+			}
+					
 		}
+		
+//		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
+//		for (Field f : fields) {
+//		    if (Modifier.isStatic(f.getModifiers())) {
+//		        System.out.println(f.getName());
+//		    } 
+//		}
 		
 //		char[] sc = "A".toCharArray();
 //		long newSeed = Long.MIN_VALUE;
@@ -85,5 +102,11 @@ public class Test {
 		if(x < 0) x = 10-((-x)%10);
 		x = x%10;
 		return x;
+	}
+	
+	private static String getTime(int ts) {
+		int s = ts%60;
+		int m = (ts-s)/60; 
+		return m + "мин " + s + "сек";
 	}
 }

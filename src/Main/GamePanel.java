@@ -58,7 +58,7 @@ public class GamePanel extends JPanel implements KeyListener {
 			
 			@Override
 			public void focusLost(FocusEvent arg0) {
-				GamePanel.stop = true;
+//				GamePanel.stop = true; TODO
 				pausedIsDrawed = false;
 				System.out.println("Focus Lost");
 				maneger.releasedAll();
@@ -67,7 +67,7 @@ public class GamePanel extends JPanel implements KeyListener {
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				System.out.println("Focus Gained");
-				GamePanel.stop = false;
+//				GamePanel.stop = false;
 			}
 		});
 		

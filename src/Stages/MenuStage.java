@@ -21,7 +21,7 @@ public class MenuStage extends Stage {
 
 	private static final int PLAY = 0;
 	private static final int PLAY_ON_SEED = 1;
-	private static final int BOOSTS = 2;
+	private static final int MULTIPLAYER = 2;
 	private static final int SETTINGS = 3;
 	private static final int ATCHIVMENTS = 4;
 	private static final int EXIT = 5;
@@ -34,7 +34,7 @@ public class MenuStage extends Stage {
 		for (int i = 0; i < myButtons.length; i++) {
 			myButtons[i] = new Button(GameData.texts[i], 0, 0);
 		}
-		myButtons[BOOSTS].clickable = false;
+//		myButtons[MULTIPLAYER].clickable = false;
 //		myButtons[SETTINGS].clickable = false;
 		pop = new MyAudio("/sounds/pop-1.wav");
 		click = new MyAudio("/sounds/pop-2.wav");
@@ -177,7 +177,10 @@ public class MenuStage extends Stage {
 				case PLAY_ON_SEED:
 					optionPane = new JOptionPane(JOptionPane.TYPE_INPUT, "Seed: ");
 					break;
-
+				case MULTIPLAYER:
+					maneger.loadStage(Maneger.MULTIPLAYER);
+					break;
+					
 				case SETTINGS:
 					maneger.loadStage(Maneger.SETTINGS);
 					break;
