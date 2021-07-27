@@ -149,14 +149,14 @@ public class GameData {
 	public static final int KEY_RIGHT = 4;
 	
 
-	public static String username = System.getProperty("user.name");
+	public static String username = loadUserName();
 
 
 	public static int[] defControl = {KeyEvent.VK_ESCAPE,KeyEvent.VK_UP,
 			KeyEvent.VK_LEFT,KeyEvent.VK_DOWN,KeyEvent.VK_RIGHT};
 	public static int[] control = loadIntArray("control", defControl);
 	
-	public static void save() {
+	public static void save() { // TODO
 		MyFile.checkSavesFolder();
 		
 		saveBooleanArray("a", achievements, "achievements");
@@ -188,6 +188,11 @@ public class GameData {
 		} catch (IOException e) {
 			JOptionPane.showMessageDialog(null, "Error saving totalData:\n" + e.getMessage());
 		}
+
+		try {
+			MyFile.writeFile("data/saves/.usrnm", username);
+		} catch (IOException e) {
+		}
 		
 		/*
 		 * 	String achievementsString = "";
@@ -202,7 +207,7 @@ public class GameData {
 		 * 
 		 */
 	}
-	
+
 	private static void saveData(String value, String file) throws IOException {
 		MyFile.writeFile("data/saves/." + file, value +" " + hashString(value));
 	}
@@ -353,5 +358,12 @@ public class GameData {
 		} catch (NumberFormatException e) {
 			return 5;
 		}
+	}
+	
+	private static String loadUserName() {
+		String userName = MyFile.readFile("data/saves/.usrnm");
+		if(userName == null || userName.isEmpty())
+			return System.getProperty("user.name");
+		return userName;
 	}
 }

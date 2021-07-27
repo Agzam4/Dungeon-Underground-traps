@@ -9,11 +9,17 @@ import Work.Loader;
 
 public class OtherPlayers {
 
+	// 6745331085857661477;
+	
 	double x,y;
 	int w,h;
 
 	public int id = 0;
 	public int players = 1;
+	
+	boolean isVisible = true;
+	
+	int lw, lh;
 	
 	String name = null;
 
@@ -24,13 +30,30 @@ public class OtherPlayers {
 	}
 	
 	public void draw(Graphics2D g) {
-		int nx = (int) ((x - GameStage.mapX - w/2)*GamePanel.quality + GamePanel.getGameWidth()/2);
-		int ny = (int) ((y - GameStage.mapY - h/2)*GamePanel.quality + GamePanel.getGameHeight()/2);
+		if(!isVisible) return;
 		int nw = (int) (w*GamePanel.quality);
 		int nh = (int) (h*GamePanel.quality);
 		if(players < 0)
 			players = 1;
 		g.setColor(getColor(id, players));
+
+		drawPlayer(g, x, y, nw, nh);
+
+		drawPlayer(g, x+lw, y, nw, nh);
+		drawPlayer(g, x-lw, y, nw, nh);
+
+		drawPlayer(g, x, y+lh, nw, nh);
+		drawPlayer(g, x, y-lh, nw, nh);
+
+		drawPlayer(g, x-lw, y-lh, nw, nh);
+		drawPlayer(g, x+lw, y-lh, nw, nh);
+		drawPlayer(g, x-lw, y+lh, nw, nh);
+		drawPlayer(g, x+lw, y+lh, nw, nh);
+	}
+	
+	private void drawPlayer(Graphics2D g, double x, double y, int nw, int nh) {
+		int nx = (int) ((x - GameStage.mapX - w/2)*GamePanel.quality + GamePanel.getGameWidth()/2);
+		int ny = (int) ((y - GameStage.mapY - h/2)*GamePanel.quality + GamePanel.getGameHeight()/2);
 		g.fillRect(nx, ny, nw, nh);
 		g.drawImage(Loader.PLAYER2, nx, ny, nw, nh, null);
 	}
@@ -43,6 +66,7 @@ public class OtherPlayers {
 	public static Color getColor(int id, int players) {
 		return new Color(Color.HSBtoRGB((1/(float)(players))*id, 1f, 1f));
 	}
+	
 	public static Color getColorLight(int id, int players) {
 		return new Color(Color.HSBtoRGB((1/(float)(players))*id, 0.5f, 1f));
 	}
@@ -61,4 +85,18 @@ public class OtherPlayers {
 	public double getY() {
 		return y;
 	}
+	
+	public void hide() {
+		isVisible = false;
+	}
+	
+	public boolean isVisible() {
+		return isVisible;
+	}
+	
+	public void setLB(int lw, int lh) {
+		this.lw = lw*16;
+		this.lh = lh*16;
+	}
+	
 }

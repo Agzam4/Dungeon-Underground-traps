@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
+import javax.sql.rowset.serial.SerialStruct;
 
 import Main.GamePanel;
 import Multiplayer.GameClient;
@@ -24,6 +25,7 @@ import Work.GameData;
 import Work.LevelGenerator;
 import Work.Loader;
 import Work.MyAudio;
+import Work.Painter;
 
 public class GameStage extends Stage {
 
@@ -49,6 +51,11 @@ public class GameStage extends Stage {
 	static MyAudio sounds[] = new MyAudio[soundsNames.length];
 	
 	long times;
+	
+	boolean isMusicChange = false;
+	
+	
+	boolean isLoadingOnline = false;
 	
 	public GameStage(Maneger maneger, Long seed) {
 		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
@@ -96,8 +103,10 @@ public class GameStage extends Stage {
 	GameClient client;
 
 	public GameStage(Maneger maneger, GameClient client) { // TODO
+		isLoadingOnline = true;
 		System.err.println("Starting client");
-		music = new MyAudio("/music/Dungeon_Underground_Traps_online_0.wav");
+		isMusicChange = false;
+		music = new MyAudio("/music/Dungeon_Underground_Traps_online_0.mp3");
 		music.play(-1);
 		init(maneger, null, 25, 25, 0);
 
@@ -107,32 +116,36 @@ public class GameStage extends Stage {
 		this.client = client;
 		level = null;
 //		this.client.setLg(level);
-		System.err.println("Wating map...");
-		while (level == null) {
-			while (!this.client.isMapGet) {
+		Thread loading = new Thread(() -> {
+			System.err.println("Wating map...");
+			while (level == null) {
+				while (!this.client.isMapGet) {
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+					}
+				}
 				try {
-					Thread.sleep(100);
+					Thread.sleep(500);
 				} catch (InterruptedException e) {
 				}
+				System.out.println(level + " " + this.client.lg);
+				level = this.client.lg;
+				if(client.needExit) {
+					break;
+				}
 			}
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-			}
-			System.out.println(level + " " + this.client.lg);
-			level = this.client.lg;
+			System.err.println("Map load!");
 			if(client.needExit) {
-				break;
+				maneger.setMultiplayer(client.exitMsg);
+				return;
 			}
-		}
-		System.err.println("Map load!");
-		if(client.needExit) {
-			maneger.setMultiplayer(client.exitMsg);
-			return;
-		}
-		System.err.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-		setPositions();
-		player.setImg(Loader.PLAYER2);
+			System.err.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+			setPositions();
+			player.setImg(Loader.PLAYER2);
+			isLoadingOnline = false;
+		});
+		loading.start();
 	}
 
 	double fx;
@@ -170,8 +183,43 @@ public class GameStage extends Stage {
 	}
 	
 	@Override
-	public void draw(Graphics2D g, Graphics2D gf) {
+	public void draw(Graphics2D g, Graphics2D gf) { // TODO: draw
+		if(client != null && client.isGameEnd()) { // TODO
+			String[] info = client.endINFO.split(";");
+			int path = GamePanel.frameH/(info.length+5);
+			if(path < 5)
+				path = 5;
+			gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (path*1.5)));
+			System.out.println(client.endINFO + "\n");
+			Painter.drawCenterString(gf, "You " + (client.isPlaying ? "win":"lose"),
+					OtherPlayers.getColor(client.clientID, info.length), Color.WHITE, path*2);
 
+			gf.setFont(new Font("Comic Sans MS", Font.BOLD, path));
+			int id = 0;
+			for (String line : info) {
+				String lineData[] = line.split(":");
+				int playerID = 0;
+				try {
+					playerID = Integer.valueOf(lineData[1]);
+				} catch (NumberFormatException e) {
+				}
+				String nline = lineData[0] + ") " + client.getName(playerID) +" (" + lineData[2] + ")";
+				Painter.drawCenterString(gf, nline,
+						OtherPlayers.getColor(id, info.length), Color.WHITE, path*(id+4));
+				id++;
+			}
+		}
+		if(isLoadingOnline) {
+			g.setPaint(GameOverStage.getGradient(Loader.COLOR_GAME_BG));
+			g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+			gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) (GamePanel.frameH/15)));
+			String s2 = " (" + client.loadingValue + "%)";
+			if(client.loadingValue == -1) {
+				s2 = "";
+			}
+			Painter.drawCenterString(gf, client.loadingInfo + s2, Loader.COLOR_TEXT_FG, Loader.COLOR_TEXT_BG, GamePanel.frameH/2);
+			return;
+		}
 		GameData.drawAchievementBlock(gf);
 
 		if(retime > 0) {
@@ -225,7 +273,7 @@ public class GameStage extends Stage {
 //						
 ////						(int)(((x+vw)*16 - mapX%tilesize + mapX2 - 1.5)*GamePanel.quality);
 //				int py = (int)(((y+vh)*16 - mapY%tilesize + mapY2 + 7 + GamePanel.gameY)*GamePanel.quality);
-		
+
 
 		// Draw Tiles //
 		int tileX = (int) -(GamePanel.getGameWidth()/GamePanel.quality/2/tilesize);
@@ -356,7 +404,9 @@ public class GameStage extends Stage {
 			player.setColor(OtherPlayers.getColor(client.clientID, client.getPlayersCount()));
 		}
 		
-		player.draw(g);
+		if(client == null || client.isPlaying) {
+			player.draw(g);
+		}
 		
 		
 		
@@ -399,42 +449,55 @@ public class GameStage extends Stage {
 		gf.drawString("" + gold,
 				(int) ((11)*GamePanel.scalefull),
 				(int) ((18)*GamePanel.scalefull));//+gf.getFont().getSize()/2
-		} else {
-			gf.setColor(new Color(94,249,156));
+		} else if(!client.isGameEnd()){
+			gf.setColor(client.needChangeMusic ? new Color(255,100,100) : new Color(94,249,156));
 			String time = "Time: " + getTime(client.normalTime);
-			gf.drawString(time,
-					(GamePanel.frameW-gf.getFontMetrics().stringWidth(time))/2,
-					(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+
+			gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
+			
+			if(client.isPlaying) {
+//				gf.drawString(time,
+//						(GamePanel.frameW-gf.getFontMetrics().stringWidth(time))/2,
+//						(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+				Color c = client.needChangeMusic ? new Color(255,100,100) : new Color(94,249,156);
+				Painter.drawCenterString(gf, time, c, c.darker().darker(),
+						(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+			}
 			gf.setColor(Color.WHITE);
-			gf.drawString("Score: " + client.score + "/" + (client.scoreLast+client.score),
-					(int) ((2)*GamePanel.scalefull),
+			Painter.k = 0.75;
+			Painter.drawString(gf, "Score: " + client.score + "/" + (client.scoreLast+client.score), Color.WHITE, Color.DARK_GRAY, (int) ((2)*GamePanel.scalefull),
 					(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
+			
 			try {
 				int y = (int) (((4)*GamePanel.scalefull) + gf.getFont().getSize()*2);
 				String lines[] = client.leadBoard.split(";");
 				for (String line : lines) {
 					String data[] = line.split("/");
 					int id = Integer.valueOf(data[0]);
-					gf.setFont(new Font("Comic Sans MS", Font.PLAIN, gf.getFont().getSize()));
-					gf.setColor(OtherPlayers.getColor(id, client.getPlayersCount()));
+					gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
+					Color c = OtherPlayers.getColor(id, client.getPlayersCount());
 					if(id == client.clientID) {
-						gf.setColor(OtherPlayers.getColorLight(id, client.getPlayersCount()));
-						gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
+						c = OtherPlayers.getColorLight(id, client.getPlayersCount());
+						gf.setFont(new Font("Comic Sans MS", Font.BOLD+2, gf.getFont().getSize()));
 					}
-					gf.drawString(data[1], (int) ((2)*GamePanel.scalefull), y);
-
+//					gf.drawString(data[1], (int) ((2)*GamePanel.scalefull), y);
+					Painter.drawString(gf, data[1], c, c.darker().darker(), (int) ((3)*GamePanel.scalefull), y);
 					y += gf.getFont().getSize()*1.5;
 				}
 
-				gf.drawString("isPlaying: " + client.isPlaying,
-						(int) ((2)*GamePanel.scalefull),
-						y + gf.getFont().getSize());
+//				gf.drawString("isPlaying: " + client.isPlaying,
+//						(int) ((2)*GamePanel.scalefull),
+//						y + gf.getFont().getSize());
 			} catch (NumberFormatException e) {
 			}
 			
 			
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, 25));
 			gf.setColor(new Color(255,100,100));
+			if(retime > 0) {
+				int timeW = gf.getFontMetrics().stringWidth(retime+"");
+				gf.drawString(retime+"", (GamePanel.frameW-timeW)/2, GamePanel.frameH/3);
+			}
 			if(!isReady) {
 				radius = 0.01f;
 				int tw = gf.getFontMetrics().stringWidth("Press ENTER if you ready");
@@ -444,8 +507,25 @@ public class GameStage extends Stage {
 				int tw = gf.getFontMetrics().stringWidth("Wating other players");
 				gf.drawString("Wating other players", (GamePanel.frameW-tw)/2, GamePanel.frameH/3);
 			}
+			if(!client.isPlaying) {
+				int txtW = gf.getFontMetrics().stringWidth("You Lose");
+				int y =  gf.getFont().getSize()+10;
+				gf.drawString("You Lose", (GamePanel.frameW-txtW)/2, y);
+				gf.setFont(new Font("Comic Sans MS", Font.ITALIC, 12));
+				String txt = "Use " + 
+				KeyEvent.getKeyText(GameData.control[GameData.KEY_RIGHT]) 
+				+ "/" + KeyEvent.getKeyText(GameData.control[GameData.KEY_LEFT]) + " to change view";
+				txtW = gf.getFontMetrics().stringWidth(txt);
+				y+= gf.getFont().getSize()+5;
+				gf.drawString(txt, (GamePanel.frameW-txtW)/2, y);
+			}
 		}
-	} // TODO
+		
+		if(win > 0) {
+			g.setColor(new Color(0,0,0,win));
+			g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+		}
+	}
 	
 	RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
 			new Point(GamePanel.getGameWidth()/2,GamePanel.getGameHeight()/2),
@@ -482,9 +562,30 @@ public class GameStage extends Stage {
 	
 	int retime = 0;
 	
+	int win = 0;
+	
 	@Override
-	public void update() {
+	public void update() { // TODO: update
+		if(client != null && client.isGameEnd()) {
+			if(win < 245)
+				win+=10;
+		}
+		if(isLoadingOnline) return;
 		GameData.updateAchievementBlock();
+		if(client != null) {
+			if(!isMusicChange) {
+				if(client.needChangeMusic) {
+					isMusicChange = true;
+					music.stop();
+					Thread startMusic = new Thread(() -> {
+						music = new MyAudio("/music/Dungeon_Underground_Traps_online_1.mp3");
+						music.setVolume(GameData.audio[GameData.AUDIO_MUSIC]/2f);
+						music.play(-1);
+					});
+					startMusic.start();
+				}
+			}
+		}
 
 		if(client != null) {
 //			if(client.isPlaying)
@@ -496,7 +597,7 @@ public class GameStage extends Stage {
 				retime = 100; // TODO
 				mapX = level.getWidth()*tilesize/2;
 				mapY = level.getHeight()*tilesize/2;
-				player.setPosition(mapX, mapY+tilesize-10);
+				player.setPosition(mapX, mapY-10);
 				isGameOver = false;
 			}else {
 				if(overStage != null)
@@ -511,7 +612,9 @@ public class GameStage extends Stage {
 			return;
 		}else if(retime == 0) {
 			player.isGameOver = false;
-			player.setPosition(mapX, mapY-tilesize);
+			mapX = level.getWidth()*tilesize/2;
+			mapY = level.getHeight()*tilesize/2;
+			player.setPosition(mapX, mapY-tilesize+6);
 			retime = -1;
 		}
 		if(boom_time > 0) { // -1014327005907606213
@@ -625,6 +728,7 @@ public class GameStage extends Stage {
 		if(dartsTime > 0)
 			dartsTime--;
 		
+		if(client == null || !client.isGameEnd())
 		player.update();
 		if(player.isGameOver && !isGameOver) {
 			isGameOver = true;
@@ -738,10 +842,10 @@ public class GameStage extends Stage {
 			} else {
 
 				if(e.getKeyCode() == GameData.control[GameData.KEY_RIGHT]) {
-					client.nextView();
+					client.nextView(0);
 				}
 				if(e.getKeyCode() == GameData.control[GameData.KEY_LEFT]) {
-					client.nextLast();
+					client.nextLast(0);
 				}
 			}
 		}else {

@@ -12,7 +12,7 @@ public class StaticServer {
 	private static GameServer server;
 	
 	public static GameClient startServer(int w, int h, int sock, Maneger m) {
-		LevelGenerator lg = new LevelGenerator();
+		LevelGenerator lg = new LevelGenerator(); // FIXME
 		lg.generate(w, h, LevelGenerator.TYPE_ONLINE_REACHER);
 		Thread t = new Thread() {
 			public void run() {

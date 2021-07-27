@@ -24,6 +24,7 @@ public class Multiplayer extends Stage {
 	
 	public Multiplayer(Maneger maneger) {
 		this.maneger = maneger;
+		JServer.isCreated = false;
 	}
 
 	Button createRoom = new Button("Create Room",0,0);

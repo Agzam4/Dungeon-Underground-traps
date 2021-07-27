@@ -49,13 +49,35 @@ public class GameClient {
 	
 
 	public boolean needExit = false;
+	public boolean needChangeMusic = false;
 	public String exitMsg = "";
+
+	public String loadingInfo = ""; // TODO
+	public float loadingValue = -1;
+	
+	private boolean isGameEnd = false;
 	
 	Maneger m;
-	
+
+	public String endINFO = "0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100"
+//			+ ";0:1:500;1:0:250;2:2:100";
+	;
 	public GameClient(String ip, int i, Maneger m) throws IOException {
 		this.m = m;
 		otherPlayers = new ArrayList<OtherPlayers>();
+		loadingInfo = "Connecting...";
 		System.err.println("Created Cleint: " + ip + ":" + i);
 			sock = new Socket(ip, i);
 			InputStreamReader streamReader = new InputStreamReader(sock.getInputStream());
@@ -68,6 +90,7 @@ public class GameClient {
 	}
 	
 	private void getID() {
+		loadingInfo = "Getting Players Count";
 		System.out.println("-2%" + GameServer.TYPE_GETCOUNTPLAYERS + "| ");
 		writer.println("-2%" + GameServer.TYPE_GETCOUNTPLAYERS + "| ");
 		writer.flush();
@@ -76,6 +99,7 @@ public class GameClient {
 	
 	private void getMap() {
 		System.out.println(clientID + "%" + GameServer.TYPE_GETMAP + "|1");
+		loadingInfo = "Getting Map";
 		sendMsg(GameServer.TYPE_GETMAP + "|1");
 	}
 	
@@ -110,16 +134,26 @@ public class GameClient {
 					String dataType = message.substring(message.indexOf("%")+1, message.indexOf("|"));
 					String data = message.substring(message.indexOf("|")+1, message.length());
 //					System.out.println(clientID + "is get msg: " + message);
-					switch (dataType) {
 
+					switch (dataType) {
+					case GameServer.TYPE_END_GAME:
+						isGameEnd = true;
+						endINFO = data;
+						// TODO
+						exit();
+						break;
+					case GameServer.TYPE_CHANGEMUSIC:
+						needChangeMusic = true;
+						break;
 					case GameServer.TYPE_SETGHOST:
 							System.err.println("GHOST: " + data);
-						try { // FIXME
+						try {
 							int ghostID = Integer.parseInt(data);
-							otherPlayers.remove(ghostID);
+							otherPlayers.get(ghostID).hide();
 							if(ghostID == clientID) {
 								isPlaying = false;
-								vievOn = 0;
+								vievOn = clientID;
+								nextView(0);
 							}
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
@@ -180,6 +214,7 @@ public class GameClient {
 							}
 							if(otherPlayers.size() < players) {
 								otherPlayers.add(new OtherPlayers(players-1));
+								setBoundsForPlayers();
 							}
 						} catch (NumberFormatException e) {
 							e.printStackTrace();
@@ -187,21 +222,27 @@ public class GameClient {
 						break;
 					case GameServer.TYPE_SETMAP:
 						System.err.println("Getting map: " + data);
+						loadingInfo = "Loading Map...";
 						String lines[] = data.split(" ");
 						int[][] map = new int[lines[0].split(":").length][lines.length];
+						float max = lines[0].split(":").length * lines.length;
+						int n = 0;
 						for (int y = 0; y < lines.length; y++) {
 							String tiles[] = lines[y].split(":");
 							for (int x = 0; x < tiles.length; x++) {
 								map[x][y] = Integer.parseInt(tiles[x]);
+								n++;
+								loadingValue = n/max;
 							}
-							System.out.println("Parsing: " + y + "/" + lines.length);
 						}
+						loadingValue = -1;
 //						if(lg == null) {
 //						}
 						lg = new LevelGenerator();
 						System.out.println("Setting...");
 						lg.setMap(map);
 						scoreLast = lg.getScore();
+						setBoundsForPlayers();
 						isMapGet = true;
 						System.out.println("isMapGet: " + isMapGet);
 						sendMsg(GameServer.TYPE_SETNAME + "|" + GameData.username);
@@ -211,6 +252,7 @@ public class GameClient {
 							int idINT = Integer.parseInt(id);
 							if(otherPlayers.size()-1 < idINT) {
 								otherPlayers.add(new OtherPlayers(otherPlayers.size()-1));
+								setBoundsForPlayers();
 							}
 							if(idINT > -1 && idINT < otherPlayers.size()) {
 								String[] pos = data.split(":");
@@ -258,9 +300,19 @@ public class GameClient {
 			}
 		}
 	}
+
+	private void setBoundsForPlayers() {
+		if(otherPlayers == null) return;
+		if(lg == null) return;
+		for (int i = 0; i < otherPlayers.size(); i++) {
+			if(otherPlayers.get(i) != null)
+				otherPlayers.get(i).setLB(lg.getWidth(), lg.getHeight());
+		}			
+	}
 	
 	public void sendPosition(double x, double y) {
-		sendMsg(GameServer.TYPE_POSITION + "|" + x + ":" + y);
+		if(isPlaying)
+			sendMsg(GameServer.TYPE_POSITION + "|" + x + ":" + y);
 	}
 	
 	public void sendRemoveTreasures(int x, int y) {
@@ -273,7 +325,7 @@ public class GameClient {
 	
 	public void drawPlayers(Graphics2D g) {
 		for (int i = 0; i < otherPlayers.size(); i++) {
-			if(i != clientID) {
+			if(i != clientID || !isPlaying) {
 				otherPlayers.get(i).id = i;
 				otherPlayers.get(i).players = otherPlayers.size();
 				otherPlayers.get(i).draw(g);
@@ -333,16 +385,37 @@ public class GameClient {
 		return otherPlayers.get(vievOn).getY();
 	}
 
-	public void nextView() {
+	public void nextView(int s) {
 		vievOn = (vievOn+1)%otherPlayers.size();
+		if(s > otherPlayers.size())
+			return;
+		if(!otherPlayers.get(vievOn).isVisible()) nextView(s + 1);
 	}
 
-	public void nextLast() {
+	public void nextLast(int s) {
 		int nv = vievOn - 1;
 		if(nv < 0) {
 			nv = otherPlayers.size()-1;
 		}
 		vievOn = nv;
+		if(s > otherPlayers.size())
+			return;
+		if(!otherPlayers.get(vievOn).isVisible()) nextLast(s + 1);
 	}
 	
+	public boolean isNeedChangeMusic() {
+		return needChangeMusic;
+	}
+	
+	public boolean isGameEnd() {
+		return isGameEnd;
+	}
+	
+	public String getName(int id) {
+		try {
+			return otherPlayers.get(id).getName();
+		} catch (ArrayIndexOutOfBoundsException e) {
+			return e.getMessage();
+		}
+	}
 }

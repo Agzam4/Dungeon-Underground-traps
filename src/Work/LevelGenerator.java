@@ -362,8 +362,7 @@ public class LevelGenerator {
 
 	int lava = 0;
 	
-	
-	private void lakeOfLava(int x, int y) {
+	private void lakeOfLava(int x, int y) { // FIXME // -5153981925330576387
 		if(random.nextDouble() < RARE_LAKE_OF_LAVA) {
 			int lw = 16;
 			for (int lx = 1; lx < 16; lx++) {
@@ -379,7 +378,7 @@ public class LevelGenerator {
 			
 
 			if(lw > 2) {
-				for (int lx = 1; lx < lw; lx++) {
+				for (int lx = 1; lx < lw-1; lx++) {
 //					for (int ly = -2; ly < 2; ly++) {
 					setBlock(x-lx, y+2, BLOCK_LAVA);
 					if(lx % 2 == 0) {
@@ -399,17 +398,17 @@ public class LevelGenerator {
 						
 					}
 				}
-				setBlock(x-lw, y-1, BLOCK_AIR);
-				setBlock(x-lw, y, BLOCK_AIR);
-				setBlock(x-lw, y+1, BLOCK_MAGMA);
-				setBlock(x-lw, y+2, BLOCK_MAGMA);
+				setBlock(x-lw+1, y-1, BLOCK_AIR);
+				setBlock(x-lw+1, y, BLOCK_AIR);
+				setBlock(x-lw+1, y+1, BLOCK_MAGMA);
+				setBlock(x-lw+1, y+2, BLOCK_MAGMA);
 
 				setBlock(x-1, y-1, BLOCK_AIR);
 				setBlock(x-1, y, BLOCK_AIR);
 				setBlock(x-1, y+1, BLOCK_MAGMA);
 				setBlock(x-1, y+2, BLOCK_MAGMA);
 				
-				roomX-= lw;
+				roomX-= lw-1;
 			}
 			
 			

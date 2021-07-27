@@ -9,18 +9,26 @@ public class MyAudio {
 	
 	private Clip clip;
 	private boolean isPlaying = false;
+//	private AudioInputStream getAudioInputStream(String s) throws UnsupportedAudioFileException, IOException {
+//		try {
+//			return AudioSystem.getAudioInputStream(getClass().getResourceAsStream(s));
+//		} catch (Exception e) {
+//		}
+//		return AudioSystem.getAudioInputStream(getClass().getResource/*AsStream*/(s));
+//	}
+	
 	
 	public MyAudio(String s) {
 		try {
 			AudioInputStream ais;
 			if(MyFile.pack == null) {
-				ais = AudioSystem.getAudioInputStream(getClass().getResource/*AsStream*/(s));
+				ais = AudioSystem.getAudioInputStream(getClass().getResource(s));
 			}else {
 				try {
 					ais = AudioSystem.getAudioInputStream(new File(
 							System.getProperty("user.dir") + "\\data\\packs\\" + MyFile.pack + s));
 				} catch (FileNotFoundException e) {
-					ais = AudioSystem.getAudioInputStream(getClass().getResource/*AsStream*/(s));
+					ais = AudioSystem.getAudioInputStream(getClass().getResource(s));
 				}
 			}
 			AudioFormat baseFormat = ais.getFormat();
@@ -38,8 +46,7 @@ public class MyAudio {
 					decodeFormat, ais);
 			clip = AudioSystem.getClip();
 			clip.open(dais);
-		}
-		catch(Exception e) {
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 		

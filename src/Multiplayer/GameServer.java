@@ -44,29 +44,36 @@ public class GameServer {
 	public static final String TYPE_LEADBOARD = "leb";
 	public static final String TYPE_REMOVEPLAYER = "rmp";
 	public static final String TYPE_GAMEALREADYSTARTED = "gas";
+	public static final String TYPE_CHANGEMUSIC = "shm";
+	public static final String TYPE_END_GAME = "end";
 
 	ArrayList<PrintWriter> clientOutputStreams;
 //	ArrayList<Long> clientsID;
 	ArrayList<Long> score;
+	ArrayList<Integer> playersReady;
 	ArrayList<Integer> ghosts;
+	
 	int ready = 0;
 	boolean running;
 	boolean isGameStarted = false;
 	
 	int time = Integer.MAX_VALUE;
 	boolean isUnDang = true;
-	int UN_DANG_TIME = 10;//60*5;
+	int UN_DANG_TIME = 60*5;
 	int PLAYER_TIME = 30;
 	
 	
 	boolean updateTime = false;
 	boolean updateGhost = false;
+	boolean changeMusic = false;
 	int setGhostID = -1;
+	boolean isGameEnd = false;
 	
 	public GameServer(LevelGenerator lg, int i) {
 		level = lg;
 		System.out.println("#W: " + level.getWidth());
 		clientOutputStreams = new ArrayList<PrintWriter>();
+		playersReady = new ArrayList<Integer>();
 		score = new ArrayList<Long>();
 		ghosts = new ArrayList<Integer>();
 		try {
@@ -75,6 +82,8 @@ public class GameServer {
 			System.out.println("Server Started\nServer: Wating clients");
 			Thread timer = new Thread(() -> {
 				isUnDang = true;
+				changeMusic = false;
+				isGameEnd = false;
 				while (running) {
 					if(isGameStarted) {
 						updateTime = true;
@@ -83,19 +92,27 @@ public class GameServer {
 						}else {
 //							if(!isUnDang) {
 							sortLeadBoard();
-								int gid = leads.get(leads.size()-1);
+							if(!isUnDang && leads.size()>1) {
+								int gid = leads.get(0);
 								setGhostID = gid;
-								System.out.println("-" + gid);
 								updateGhost = true;
-//								removePlayer(); // FIXME
-//							}
+							}
 							time = PLAYER_TIME;
+							if(isUnDang) {
+								changeMusic = true;
+							}
 							isUnDang = false;
 						}
+					}else {
+						checkAllReady();
 					}
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
+					}
+					if(isGameStarted && !(ghosts.size() < clientOutputStreams.size()-1) && !isGameEnd) {
+						System.err.println("\n\n\n!!! GAME END !!!\n\n\n");
+						isGameEnd = true;
 					}
 					System.out.println("LOOP: " + time);
 				}
@@ -109,7 +126,6 @@ public class GameServer {
 				Thread t = new Thread(new ClientHandler(clientSocket, clientOutputStreams.size()-1));
 				t.start();
 				System.out.println("got a connection");
-				
 			}
 			serverSock.close();
 		} catch (IOException e) {
@@ -158,13 +174,12 @@ public class GameServer {
 						updateLeadBoard();
 						break;
 					case TYPE_PLAYERREADY:
-						ready++;
-						if(ready == clientOutputStreams.size() && clientOutputStreams.size() > 1) {
-							tellEveryone("-1%" + TYPE_START + "| ");
-							isGameStarted = true;
-							updateLeadBoard();
-							time = UN_DANG_TIME;//60*5; // TODO
+						try {
+							int idINT = Integer.parseInt(id);
+							playersReady.add(idINT);
+						} catch (NumberFormatException e) {
 						}
+						checkAllReady();
 						break;
 					case TYPE_MESSAGE:
 						chat += data;
@@ -235,26 +250,67 @@ public class GameServer {
 						System.out.println("setGhostID: " + setGhostID);
 						tellEveryone("-1%" + TYPE_SETGHOST + "|" + setGhostID);
 						ghosts.add(setGhostID);
-						score.remove(setGhostID);
 						updateGhost = false;
+					}
+					if(changeMusic) {
+						tellEveryone("-1%" + TYPE_CHANGEMUSIC + "|");
+						changeMusic = false;
+					}
+					
+					if(isGameEnd) {
+						ghosts.clear();
+						sortLeadBoard();
+						String leadINFO = "";
+						for (int i = 0; i < leads.size(); i++) {
+							leadINFO += (i+1) + ":" + leads.get(i) + ":" + score.get(score.size()-1-leads.get(i)) + ";";
+						}
+						tellEveryone("-1%" + TYPE_END_GAME + "|" + leadINFO);
+						isGameEnd = false;
 					}
 				}
 				removePlayer(_id);
-			}catch (SocketException e) {
-				e.printStackTrace();
+			} catch (SocketException e) {
 				removePlayer(_id);
 			} catch (IOException e) {
 				e.printStackTrace();
+				removePlayer(_id);
 			}
 		}
+
 	}
 	
+		private void checkAllReady() {
+			if(playersReady.size() == clientOutputStreams.size() && clientOutputStreams.size() > 1) {
+				tellEveryone("-1%" + TYPE_START + "| ");
+				int ts = (int) Math.round(((level.getWidth()*level.getHeight())/50_000d) * 60d);
+				int onplayer = (int) (
+						(ts)
+						/
+						(double)(clientOutputStreams.size()-1)
+						);
+				if(onplayer < 30) onplayer = 30;
+				PLAYER_TIME = 3; // FIXME: onplayer;
+				UN_DANG_TIME = 3; // FIXME: (level.getWidth()*level.getHeight())/400 + 60;
+				isGameStarted = true;
+				updateLeadBoard();
+				time = UN_DANG_TIME;
+			}
+		}
+		
 	private void removePlayer(int _id) {
-		clientOutputStreams.remove(_id);
-		score.remove(_id);
-		updateLeadBoard();
-		System.err.println(_id + " - left game");
-		tellEveryone("-1%" + TYPE_REMOVEPLAYER + "|" + _id);
+		try {
+			clientOutputStreams.remove(_id);
+			if(playersReady.indexOf(_id) != -1)
+				playersReady.remove(playersReady.indexOf(_id));
+			if(ghosts.indexOf(_id) == -1)
+				score.remove(_id);
+
+			updateLeadBoard();
+			System.err.println(_id + " - left game");
+			tellEveryone("-1%" + TYPE_REMOVEPLAYER + "|" + _id);
+		} catch (ArrayIndexOutOfBoundsException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	
@@ -276,7 +332,8 @@ public class GameServer {
 	String leadBoardString;
 
 	ArrayList<Integer> leads = new ArrayList<Integer>();
-	
+
+	Integer idd = 0;
 	private void sortLeadBoard() {	
 		HashMap<Integer, Long> leadBoard = new HashMap<Integer, Long>();
 		for (int i = 0; i < score.size(); i++) {
@@ -285,13 +342,16 @@ public class GameServer {
 
 		leads.clear();
 		leadBoardString = "";
+		idd = 0;
 		leadBoard.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(e -> {
-			leads.add(e.getKey());
-			leadBoardString = e.getKey() + "/" + (1 + clientOutputStreams.size() - leads.size()) + ") #P" + e.getKey() + " (" + e.getValue() + ");" + leadBoardString;
+			int id = leadBoard.size()-idd;
+			if(ghosts.indexOf(e.getKey()) == -1)
+				leads.add(e.getKey());
+			leadBoardString = e.getKey() + "/" + id + ") #P" + e.getKey() + " (" + 
+				(ghosts.indexOf(e.getKey()) == -1 ? e.getValue() : "Lose")
+			+ ");" + leadBoardString;
+			idd++;
 		});
-		for (int i = 0; i < ghosts.size(); i++) {
-			leadBoardString = ghosts.get(i) + "/" + (score.size()+i) + ") #P" + ghosts.get(i) + " (Lose);" + leadBoardString;
-		}
 	}
 	
 	private void updateLeadBoard() {	

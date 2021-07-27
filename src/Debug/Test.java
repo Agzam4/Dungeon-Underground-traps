@@ -1,5 +1,6 @@
 package Debug;
 
+import java.awt.Rectangle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
@@ -8,23 +9,28 @@ public class Test {
 	static String blocks = "S ##>__^^=|_I^ @FN^``**B  V";
 
 	public static void main(String[] args) {
-		int plusTime = 60*5;
-		for (int i = 50; i < 1050; i+=50) {
-			long blocks = i*i;
-			int ts = (int) Math.round(((blocks)/50_000d) * 60d);
-			System.err.println("Карта: " + i + "x" + i + ":   \tВсего времени ~" + getTime(ts+plusTime) + "\n");
-			for (int players = 2; players < 16; players+=1) {
-				int onplayer = (int) (
-						(ts)
-						/
-						(double)(players-1)
-						);
-				if(onplayer < 30) onplayer = 30;
-				System.out.println(" Игроков: " + players + "\t На игрока: " + getTime(onplayer) + "    \t\t Всего: " + getTime(onplayer * (players-1) + plusTime));//getTime(ts));
-			}
-					
-		}
-		
+
+		Rectangle rectangle = new Rectangle(4,1,5,5);
+		Rectangle rectangle2 = new Rectangle(0,5,5,5);
+
+		System.out.println(rectangle.intersects(rectangle2));
+//		int plusTime = 60*5;
+//		for (int i = 50; i < 1050; i+=50) {
+//			long blocks = i*i;
+//			int ts = (int) Math.round(((blocks)/50_000d) * 60d);
+//			System.err.println("Карта: " + i + "x" + i + ":   \tВсего времени ~" + getTime(ts+plusTime) + "\n");
+//			for (int players = 2; players < 16; players+=1) {
+//				int onplayer = (int) (
+//						(ts)
+//						/
+//						(double)(players-1)
+//						);
+//				if(onplayer < 30) onplayer = 30;
+//				System.out.println(" Игроков: " + players + "\t На игрока: " + getTime(onplayer) + "    \t\t Всего: " + getTime(onplayer * (players-1) + plusTime));//getTime(ts));
+//			}
+//					
+//		}
+//		
 //		Field[] fields = java.awt.event.KeyEvent.class.getDeclaredFields();
 //		for (Field f : fields) {
 //		    if (Modifier.isStatic(f.getModifiers())) {

@@ -210,6 +210,7 @@ public class JOptionPane {
 			ok.setPosition(x+w/2, y+h/10*9);
 			if(ok.isClicked()) {
 				isOKpressed = needClose = true;
+				MouseController.isMousePressed = false;
 			}
 			break;
 		case TYPE_INPUT:
@@ -218,6 +219,7 @@ public class JOptionPane {
 			if(ok.isClicked()) {
 				isOKpressed = needClose = true;
 			}
+			MouseController.isMousePressed = false;
 			break;
 
 		default:
