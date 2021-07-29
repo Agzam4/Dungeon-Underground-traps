@@ -1,22 +1,18 @@
 package Stages;
 
 import java.awt.AlphaComposite;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.imageio.ImageIO;
-import javax.sql.rowset.serial.SerialStruct;
-
 import Main.GamePanel;
 import Multiplayer.GameClient;
+import Multiplayer.StaticServer;
 import Objects.Button;
 import Objects.Dart;
 import Objects.OtherPlayers;
@@ -103,6 +99,7 @@ public class GameStage extends Stage {
 	GameClient client;
 
 	public GameStage(Maneger maneger, GameClient client) { // TODO
+		this.client = null;
 		isLoadingOnline = true;
 		System.err.println("Starting client");
 		isMusicChange = false;
@@ -182,36 +179,43 @@ public class GameStage extends Stage {
 		return m + ":" + (s < 10 ? "0" + s : s);
 	}
 	
+	Button menu2 = new Button("", 0, 0);
+	
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) { // TODO: draw
-		if(client != null && client.isGameEnd()) { // TODO
+		if(client != null && client.isGameEnd()) {
+			menu2.setText(GameData.texts[GameData.TEXT_MENU]);
+			menu2.draw(gf);
 			String[] info = client.endINFO.split(";");
-			int path = GamePanel.frameH/(info.length+5);
+			int path = GamePanel.frameH/(info.length+6);
 			if(path < 5)
 				path = 5;
+			menu2.setPosition(GamePanel.frameW/2, path*(info.length+5));
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (path*1.5)));
-			System.out.println(client.endINFO + "\n");
 			Painter.drawCenterString(gf, "You " + (client.isPlaying ? "win":"lose"),
 					OtherPlayers.getColor(client.clientID, info.length), Color.WHITE, path*2);
 
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, path));
+			if(path > GamePanel.scalefull*15) {
+				gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (GamePanel.scalefull*15)));
+			}
 			int id = 0;
 			for (String line : info) {
 				String lineData[] = line.split(":");
 				int playerID = 0;
 				try {
-					playerID = Integer.valueOf(lineData[1]);
+					playerID = Integer.valueOf(lineData[0]);
 				} catch (NumberFormatException e) {
+					e.printStackTrace();
 				}
-				String nline = lineData[0] + ") " + client.getName(playerID) +" (" + lineData[2] + ")";
+				String nline = (id+1) + ") " + client.getName(playerID) +" (" + lineData[1] + ")";
 				Painter.drawCenterString(gf, nline,
-						OtherPlayers.getColor(id, info.length), Color.WHITE, path*(id+4));
+						OtherPlayers.getColor(playerID, info.length), Color.WHITE, path*(id+4));
 				id++;
 			}
 		}
 		if(isLoadingOnline) {
-			g.setPaint(GameOverStage.getGradient(Loader.COLOR_GAME_BG));
-			g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+			Painter.drawGradientGF(gf, Loader.COLOR_GAME_BG);
 			gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) (GamePanel.frameH/15)));
 			String s2 = " (" + client.loadingValue + "%)";
 			if(client.loadingValue == -1) {
@@ -223,7 +227,6 @@ public class GameStage extends Stage {
 		GameData.drawAchievementBlock(gf);
 
 		if(retime > 0) {
-			System.err.println(retime);
 			gf.drawString("" + retime, GamePanel.frameW/2,  GamePanel.frameH/2);
 		}
 		
@@ -453,19 +456,20 @@ public class GameStage extends Stage {
 			gf.setColor(client.needChangeMusic ? new Color(255,100,100) : new Color(94,249,156));
 			String time = "Time: " + getTime(client.normalTime);
 
+			int defsize = gf.getFont().getSize();
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
 			
-			if(client.isPlaying) {
+//			if(client.isPlaying) {
 //				gf.drawString(time,
 //						(GamePanel.frameW-gf.getFontMetrics().stringWidth(time))/2,
 //						(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
-				Color c = client.needChangeMusic ? new Color(255,100,100) : new Color(94,249,156);
-				Painter.drawCenterString(gf, time, c, c.darker().darker(),
+				Color cc = client.needChangeMusic ? new Color(255,100,100) : new Color(94,249,156);
+				Painter.drawCenterString(gf, time, cc, cc.darker().darker(),
 						(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
-			}
+//			}
 			gf.setColor(Color.WHITE);
 			Painter.k = 0.75;
-			Painter.drawString(gf, "Score: " + client.score + "/" + (client.scoreLast+client.score), Color.WHITE, Color.DARK_GRAY, (int) ((2)*GamePanel.scalefull),
+			Painter.drawString(gf, "Score: " + client.score + "/" + (client.scoreLast+client.score) + " | Players: " + client.getPlayersCount(), Color.WHITE, Color.DARK_GRAY, (int) ((2)*GamePanel.scalefull),
 					(int) ((2)*GamePanel.scalefull) + gf.getFont().getSize());
 			
 			try {
@@ -481,7 +485,7 @@ public class GameStage extends Stage {
 						gf.setFont(new Font("Comic Sans MS", Font.BOLD+2, gf.getFont().getSize()));
 					}
 //					gf.drawString(data[1], (int) ((2)*GamePanel.scalefull), y);
-					Painter.drawString(gf, data[1], c, c.darker().darker(), (int) ((3)*GamePanel.scalefull), y);
+					Painter.drawString(gf, (lines.length - id) + ") " + data[1], c, c.darker().darker(), (int) ((3)*GamePanel.scalefull), y);
 					y += gf.getFont().getSize()*1.5;
 				}
 
@@ -509,7 +513,7 @@ public class GameStage extends Stage {
 			}
 			if(!client.isPlaying) {
 				int txtW = gf.getFontMetrics().stringWidth("You Lose");
-				int y =  gf.getFont().getSize()+10;
+				int y =  gf.getFont().getSize()+ 20 + defsize;
 				gf.drawString("You Lose", (GamePanel.frameW-txtW)/2, y);
 				gf.setFont(new Font("Comic Sans MS", Font.ITALIC, 12));
 				String txt = "Use " + 
@@ -569,6 +573,21 @@ public class GameStage extends Stage {
 		if(client != null && client.isGameEnd()) {
 			if(win < 245)
 				win+=10;
+
+			retime = 0;
+			isGameOver = false;
+			menu2.update();
+			
+			if(win > 100 && menu2.isClicked()) {
+				try {
+					client.exit();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+					music.stop();
+					music.close();
+					maneger.loadStage(Maneger.MULTIPLAYER);
+			}
 		}
 		if(isLoadingOnline) return;
 		GameData.updateAchievementBlock();
@@ -636,7 +655,7 @@ public class GameStage extends Stage {
 			}
 		}
 		
-		if(paused) {
+		if(paused && (client == null || !client.isGameEnd())) {
 			updateVolume();
 			int dist = GamePanel.frameH/(pButtons.length + 4);
 			for (int i = 0; i < pButtons.length; i++) {
@@ -874,10 +893,12 @@ public class GameStage extends Stage {
 
 	@Override
 	protected void releasedAll() {
-		player.setVK_UP(false);
-		player.setVK_DOWN(false);
-		player.setVK_RIGHT(false);
-		player.setVK_LEFT(false);
+		if(player != null) {
+			player.setVK_UP(false);
+			player.setVK_DOWN(false);
+			player.setVK_RIGHT(false);
+			player.setVK_LEFT(false);
+		}
 	}
 	
 	public static void updateMusicVolume() {

@@ -14,6 +14,8 @@ public class Test {
 		Rectangle rectangle2 = new Rectangle(0,5,5,5);
 
 		System.out.println(rectangle.intersects(rectangle2));
+
+//		System.out.println((int)('Z')-(int)('0'));
 //		int plusTime = 60*5;
 //		for (int i = 50; i < 1050; i+=50) {
 //			long blocks = i*i;

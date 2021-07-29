@@ -2,8 +2,11 @@ package Work;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.RadialGradientPaint;
 
 import Main.GamePanel;
+import Stages.GameOverStage;
 
 public class Painter {
 	
@@ -23,5 +26,14 @@ public class Painter {
 	public static void drawCenterString(Graphics2D gf, String str, Color c1, Color c2, int y) {
 		int tw = gf.getFontMetrics().stringWidth(str);
 		drawString(gf, str, c1, c2, (GamePanel.frameW-tw)/2, y);
+	}
+
+	public static void drawGradientGF(Graphics2D gf, Color c) {
+		gf.setPaint(new RadialGradientPaint(
+				new Point(GamePanel.frameW/2, GamePanel.frameH/2),
+				GamePanel.frameH/2f * 1.5f,
+				new float[] { .0f,1f},
+				new Color[] {c, new Color(5,5,5)}));
+		gf.fillRect(0, 0, GamePanel.frameW, GamePanel.frameH);
 	}
 }

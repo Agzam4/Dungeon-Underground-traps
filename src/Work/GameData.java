@@ -1,6 +1,5 @@
 package Work;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
@@ -8,15 +7,15 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.Random;
 
-import javax.sql.rowset.serial.SerialStruct;
 import javax.swing.JOptionPane;
 
 import Main.GamePanel;
 import Objects.AchievementBlock;
 
 public class GameData {
+
+	public static boolean isDevMode = loadBooleanArray("dm", 1)[0];
 	
 	public static final String language = getLanguage();
 	
@@ -206,6 +205,8 @@ public class GameData {
 		}
 		 * 
 		 */
+		
+		saveBooleanArray("dm", new boolean[] {isDevMode}, "");
 	}
 
 	private static void saveData(String value, String file) throws IOException {

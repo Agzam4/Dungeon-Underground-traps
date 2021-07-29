@@ -4,6 +4,7 @@ import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 
 import Multiplayer.GameClient;
+import Multiplayer.StaticServer;
 import Objects.JOptionPane;
 import Work.LevelGenerator;
 import Work.MouseController;
@@ -101,6 +102,7 @@ public class Maneger {
 			stages[PACKS] = new PacksStage(this);
 			break;
 		case MULTIPLAYER:
+			StaticServer.stop();
 			stages[MULTIPLAYER] = new Multiplayer(this);
 			break;
 		default:

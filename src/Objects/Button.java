@@ -17,7 +17,7 @@ public class Button {
 	String text = "";
 	
 	int bx, by, bw, bh;
-	int maxBw = 0;
+	int maxBw, maxBh = 0;
 	int fontSize = 15;
 	double bv = 0;
 	String fontName = "Comic Sans MS";
@@ -40,7 +40,8 @@ public class Button {
 		gf.setFont(new Font(fontName, Font.PLAIN, (int) ((fontSize+(chageSize ? bv : 0))*GamePanel.scalefull)));
 		bw = gf.getFontMetrics().stringWidth(text);
 		bh = gf.getFont().getSize();
-		maxBw = (int) (gf.getFontMetrics().stringWidth(text) + 2*GamePanel.scalefull);
+		maxBw = (int) (gf.getFontMetrics().stringWidth(text) + (chageSize ? 2*GamePanel.scalefull : 0));
+		maxBh = gf.getFont().getSize();
 		drawString(gf, text, (int) (bx - bw/2), by);
 	}
 
@@ -109,9 +110,6 @@ public class Button {
 		by = y;
 	}
 	
-	public int getBw() {
-		return maxBw;
-	}
 	
 	public boolean isClicked() {
 		return isClicked || robotClick;
@@ -124,6 +122,10 @@ public class Button {
 	}
 	
 	public int getBh() {
-		return (int) ((fontSize+5)*GamePanel.scalefull);
+		return (int) (fontSize*GamePanel.scalefull);
+	}
+
+	public int getBw() {
+		return maxBw;
 	}
 }

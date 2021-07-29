@@ -28,6 +28,9 @@ public class SettingsStage extends Stage {
 	Maneger maneger;
 	Button button = new Button(GameData.texts[GameData.TEXT_BACK], 0, 0);
 	
+
+	Button devMode = new Button("Developer Mode", 0, 0);
+	
 	int selected = 0;
 	
 	Button settings[] = new Button[4];
@@ -51,6 +54,7 @@ public class SettingsStage extends Stage {
 		packs.chageSize = false;
 		deleteprogress.chageSize = false;
 		fullscreen.chageSize = false;
+		devMode.chageSize = false;
 	}
 	
 	int dist = 0;
@@ -65,6 +69,8 @@ public class SettingsStage extends Stage {
 		for (int i = 0; i < settings.length; i++) {
 			settings[i].draw(gf);
 		}
+		
+		devMode.draw(gf);
 		
 		gf.setColor(Loader.COLOR_TEXT_FG);
 		sh = (GamePanel.frameH/6*4 - 5)/150;
@@ -356,6 +362,15 @@ public class SettingsStage extends Stage {
 		button.update();
 		if(button.isClicked()) {
 			maneger.setLast();
+		}
+		
+		devMode.update();
+		devMode.setFontSize(3);
+		devMode.setPosition(devMode.getBw()/2, devMode.getBh());
+		devMode.setText("Developer Mode: " + (GameData.isDevMode ? " on" : "off "));
+		
+		if(devMode.isClicked()) {
+			GameData.isDevMode = !GameData.isDevMode;
 		}
 	}
 	

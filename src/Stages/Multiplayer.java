@@ -17,6 +17,7 @@ import Objects.JOptionPane;
 import Work.GameData;
 import Work.LevelGenerator;
 import Work.Loader;
+import Work.Painter;
 
 public class Multiplayer extends Stage {
 
@@ -43,8 +44,7 @@ public class Multiplayer extends Stage {
 		createRoom.draw(gf);
 		join.draw(gf);
 		back.draw(gf);
-		g.setPaint(GameOverStage.getGradient(Loader.COLOR_GAME_BG));
-		g.fillRect(0, 0, GamePanel.getGameWidth(), GamePanel.getGameHeight());
+		Painter.drawGradientGF(gf, Loader.COLOR_GAME_BG);
 	}
 	
 	JOptionPane panel;
@@ -78,6 +78,10 @@ public class Multiplayer extends Stage {
 					}
 					System.out.println(socket);
 					panel = new JOptionPane(JOptionPane.TYPE_INPUT, "Server IP: ", TYPE_IP);
+					if(GameData.isDevMode) {
+						panel.setInput("loopback");
+						panel.needClose = true;
+					}
 					return;
 				case TYPE_IP:
 					if(!panel.getInput().isEmpty()) {
@@ -127,16 +131,99 @@ public class Multiplayer extends Stage {
 		if(createRoom.isClicked()) {
 			JServer.create();
 		}
-		
 
 		if(JServer.isCreated) {
-			StaticServer.stop();
 			System.err.println("Starting Server");
 			maneger.setGameStageClient(StaticServer.startServer(JServer.getW(), JServer.getH(), JServer.getSok(), maneger));
+			if(GameData.isDevMode) { // TODO
+				for (int i = 0; i < 10; i++) {
+					int ii = i;
+					Thread debugClient = new Thread(() -> {
+						GameClient client2;
+						double nx = 0, ny = 0;
+						try {
+							try {
+								Thread.sleep(200*ii);
+							} catch (InterruptedException e) {
+							}
+							client2 = new GameClient(InetAddress.getLoopbackAddress().getHostAddress(), JServer.getSok(), null,
+									"Debug #" + ii);
+							try {
+								Thread.sleep((long) (300 + Math.random()*700));
+							} catch (InterruptedException e) {
+							}
+							client2.sendReady();
+							client2.sendPosition(0, 0);
+							while (!client2.isGameEnd()) {
+								try {
+									Thread.sleep(1000);
+								} catch (InterruptedException e) {
+								}
+								if(client2.lg != null && client2.isAllReady)
+									for (int x = 0; x < client2.lg.getWidth(); x++) {
+										for (int y = 0; y < client2.lg.getHeight(); y++) {
+											if(client2.lg.getBlock(x, y) == client2.lg.BLOCK_GOLD
+													|| client2.lg.getBlock(x, y) == client2.lg.BLOCK_DIAMOND) {
+												int x1 = (int) (nx - x*16);
+												int y1 = (int) (ny - y*16);
+												
+												long sleep = (long) Math.sqrt(x1*x1+y1*y1);
+												double tx = x*16, ty = y*16 + 6;
+												client2.sendPosition(nx, ny);
+												for (long j = 0; j < sleep/100; j++) {
+													nx = (nx - tx)*0.8 + tx;
+													ny = (ny - ty)*0.8 + ty;
+													client2.sendPosition(nx, ny);
+													try {
+														Thread.sleep(100);
+													} catch (InterruptedException e) {
+													}
+													if(client2.lg.getBlock(x, y) != client2.lg.BLOCK_GOLD
+															&& client2.lg.getBlock(x, y) != client2.lg.BLOCK_DIAMOND) {
+														break;
+													}
+												}
+												if((client2.lg.getBlock(x, y) == client2.lg.BLOCK_GOLD
+														|| client2.lg.getBlock(x, y) == client2.lg.BLOCK_DIAMOND)) {
+													client2.sendRemoveTreasures(x, y);
+													nx = tx;
+													ny = ty;
+												}
+												client2.sendPosition(nx, ny);
+											}
+										}
+									}
+								client2.sendPosition(nx, ny);
+							}
+							try {
+								client2.exit();
+							} catch (IOException e) {
+								System.err.println("{DEBUG CLIENT}");
+								e.printStackTrace();
+							}
+						} catch (IOException e1) {
+							maneger.setMultiplayer(e1.getMessage());
+							e1.printStackTrace();
+						}
+					});
+					debugClient.start();
+				}
+			}
 		}
 		
 		if(join.isClicked()) {
 			panel = new JOptionPane(JOptionPane.TYPE_INPUT, "Port (Enter for 7500): ", TYPE_SOCKET);
+			if(GameData.isDevMode) {
+				panel.needClose = true;
+			}
+		}
+	}
+
+	private void extracted() {
+		try {
+			
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
