@@ -164,18 +164,30 @@ public class Multiplayer extends Stage {
 										for (int y = 0; y < client2.lg.getHeight(); y++) {
 											if(client2.lg.getBlock(x, y) == client2.lg.BLOCK_GOLD
 													|| client2.lg.getBlock(x, y) == client2.lg.BLOCK_DIAMOND) {
-												int x1 = (int) (nx - x*16);
-												int y1 = (int) (ny - y*16);
+												try {
+													Thread.sleep((long) (Math.random()*100));
+												} catch (InterruptedException e) {
+												}
 												
-												long sleep = (long) Math.sqrt(x1*x1+y1*y1);
-												double tx = x*16, ty = y*16 + 6;
+												double tx = x*16, ty = y*16;
 												client2.sendPosition(nx, ny);
-												for (long j = 0; j < sleep/100; j++) {
-													nx = (nx - tx)*0.8 + tx;
-													ny = (ny - ty)*0.8 + ty;
+												while(nx != tx && ny != ty) {
+													if(nx == tx) {
+														if(ny < ty)
+															ny += 4;
+														if(ny > ty)
+															ny -= 4;
+													}else {
+														if(nx < tx)
+															nx += 4;
+														if(nx > tx)
+															nx -= 4;
+													}
+													nx = (nx/4)*4;
+													ny = (ny/4)*4;
 													client2.sendPosition(nx, ny);
 													try {
-														Thread.sleep(100);
+														Thread.sleep(125);
 													} catch (InterruptedException e) {
 													}
 													if(client2.lg.getBlock(x, y) != client2.lg.BLOCK_GOLD
@@ -183,13 +195,18 @@ public class Multiplayer extends Stage {
 														break;
 													}
 												}
-												if((client2.lg.getBlock(x, y) == client2.lg.BLOCK_GOLD
-														|| client2.lg.getBlock(x, y) == client2.lg.BLOCK_DIAMOND)) {
+
+												if(client2.lg.getBlock(x, y) == client2.lg.BLOCK_GOLD
+														|| client2.lg.getBlock(x, y) == client2.lg.BLOCK_DIAMOND) {
 													client2.sendRemoveTreasures(x, y);
 													nx = tx;
 													ny = ty;
 												}
 												client2.sendPosition(nx, ny);
+												try {
+													Thread.sleep(1000);
+												} catch (InterruptedException e) {
+												}
 											}
 										}
 									}

@@ -21,7 +21,7 @@ public class Player extends GameObject {
 	int lw;
 	int lh;
 	
-	int hp = 1;
+	int hp = 100;
 
 	double cx = 5*GamePanel.quality;//-0.1;
 	double cy = 5*GamePanel.quality;
@@ -64,7 +64,7 @@ public class Player extends GameObject {
 //		g.drawLine(xx + 5*q, yy, xx + 5*q, yy+10*q);
 //		g.drawLine(xx, yy + 5*q, xx+10*q, yy + 5*q);
 
-//		int nx2 = (int) getCutX2(x+10);
+//		int nx2 = (int) getCutX2(x+10); // -7536701444361536323
 //		g.setColor(Color.GREEN);
 //		g.drawString("X: " + x + " Y: " + y, GamePanel.getGameWidth()/2, GamePanel.getGameHeight()/2);
 //		g.setColor(Color.RED);
@@ -247,23 +247,31 @@ public class Player extends GameObject {
 	}
 
 	private boolean isWall(int type) {
-		return isWall_UnCut(x, y, type) || isWall_UnCut(x-lw, y, type)
-				 || isWall_UnCut(x, y-lh, type) || isWall_UnCut(x-lw, y-lh, type);
+		Rectangle h1 = new Rectangle((int)(x), (int)(y), 10, 10);
+		Rectangle h2 = new Rectangle((int)(x+lw), (int)(y+lh), 10, 10);
+		return isWall_UnCut(h1, x, y, type)
+				|| isWall_UnCut(h1, x-lw, y, type)
+				|| isWall_UnCut(h1, x, y-lh, type)
+				|| isWall_UnCut(h1, x-lw, y-lh, type)
+				
+				|| isWall_UnCut(h2, x, y, type)
+				|| isWall_UnCut(h2, x-lw, y, type)
+				|| isWall_UnCut(h2, x, y-lh, type)
+				|| isWall_UnCut(h2, x-lw, y-lh, type);
 	}
-	private boolean isWall_UnCut(double x, double y, int type) {
-		Rectangle hitbox = new Rectangle((int)(x), (int)(y), 10, 10);
+	private boolean isWall_UnCut(Rectangle h, double x, double y, int type) {
 		double tilesize = Player.tilesize; // TODO
 		int nx = (int)((x)/tilesize);
 		int nx2 = (int)((x+10)/tilesize);
 		//level.getHitbox((int)(x/tilesize), (int)(y/tilesize));
 		return 
-				hitbox.intersects(level.getHitbox(nx, (int)((y)/tilesize), type))
+				h.intersects(level.getHitbox(nx, (int)((y)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx2, (int)((y)/tilesize), type))
+				h.intersects(level.getHitbox(nx2, (int)((y)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx2, (int)(((y)+10)/tilesize), type))
+				h.intersects(level.getHitbox(nx2, (int)(((y)+10)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx, (int)(((y)+10)/tilesize), type))
+				h.intersects(level.getHitbox(nx, (int)(((y)+10)/tilesize), type))
 				;
 				
 //				hitbox.intersects(new Rectangle((int)x+11*tilesize, (int)y, 11*tilesize, 11*tilesize))

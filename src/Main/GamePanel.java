@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.FocusEvent;
@@ -23,6 +24,7 @@ import javax.swing.JPanel;
 import Stages.Maneger;
 import Work.GameData;
 import Work.MouseController;
+import Work.Render;
 
 public class GamePanel extends JPanel implements KeyListener {
 
@@ -229,10 +231,10 @@ public class GamePanel extends JPanel implements KeyListener {
 	}
 	
 	private void draw(Graphics2D thisG) {
-//		Graphics2D thisG = (Graphics2D) getGraphics();
 		if(thisG == null) {
 			return;
 		}
+//		Graphics2D thisG = (Graphics2D) getGraphics();
 		if(stop) {
 			if(!pausedIsDrawed) {
 				Graphics2D a = (Graphics2D) all.getGraphics();
@@ -248,6 +250,11 @@ public class GamePanel extends JPanel implements KeyListener {
 		}
 		Graphics2D g = (Graphics2D) game.getGraphics();
 		Graphics2D gf = (Graphics2D) gamefull.getGraphics();
+		
+
+		Render.addRenderingHints(g);
+		Render.addRenderingHints(gf);
+
 		
 		gf.setComposite(alpha);
 		gf.setColor(new Color(0,0,0,0));
@@ -300,7 +307,26 @@ public class GamePanel extends JPanel implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		maneger.keyPressed(e);
+		if(e.isControlDown() && e.isAltDown()) {
+			switch (e.getKeyCode()) {
+			case  KeyEvent.VK_1:
+				Render.setSpeed();
+				System.out.println("Render.speed");
+				break;
+			case  KeyEvent.VK_2:
+				Render.setQuality();
+				System.out.println("Render.quality");
+				break;
+			case  KeyEvent.VK_0:
+				Render.setDefault();
+				System.out.println("Render.default");
+				break;
+			default:
+				break;
+			}
+		}else {
+			maneger.keyPressed(e);
+		}
 	}
 
 	@Override

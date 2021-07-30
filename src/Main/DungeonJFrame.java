@@ -15,6 +15,7 @@ import Work.GameData;
 import Work.Loader;
 import Work.MouseController;
 import Work.MyFile;
+import Work.Render;
 
 public class DungeonJFrame extends JFrame {
 

@@ -191,15 +191,13 @@ public class GameStage extends Stage {
 			if(path < 5)
 				path = 5;
 			menu2.setPosition(GamePanel.frameW/2, path*(info.length+5));
-			gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (path*1.5)));
-			Painter.drawCenterString(gf, "You " + (client.isPlaying ? "win":"lose"),
-					OtherPlayers.getColor(client.clientID, info.length), Color.WHITE, path*2);
 
 			gf.setFont(new Font("Comic Sans MS", Font.BOLD, path));
 			if(path > GamePanel.scalefull*15) {
 				gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (GamePanel.scalefull*15)));
 			}
 			int id = 0;
+			int num = 0;
 			for (String line : info) {
 				String lineData[] = line.split(":");
 				int playerID = 0;
@@ -208,11 +206,18 @@ public class GameStage extends Stage {
 				} catch (NumberFormatException e) {
 					e.printStackTrace();
 				}
+				if(playerID == client.clientID) {
+					num = id;
+				}
 				String nline = (id+1) + ") " + client.getName(playerID) +" (" + lineData[1] + ")";
 				Painter.drawCenterString(gf, nline,
 						OtherPlayers.getColor(playerID, info.length), Color.WHITE, path*(id+4));
 				id++;
 			}
+
+			gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (path*1.5)));
+			Painter.drawCenterString(gf, "You " + (num == 0 ? "win":"lose"),
+					OtherPlayers.getColor(client.clientID, info.length), Color.WHITE, path*2);
 		}
 		if(isLoadingOnline) {
 			Painter.drawGradientGF(gf, Loader.COLOR_GAME_BG);
@@ -475,8 +480,11 @@ public class GameStage extends Stage {
 			try {
 				int y = (int) (((4)*GamePanel.scalefull) + gf.getFont().getSize()*2);
 				String lines[] = client.leadBoard.split(";");
-				for (String line : lines) {
-					String data[] = line.split("/");
+				for (int i = 0; i < client.getPlayersCount(); i++) {
+					if(i > lines.length-1) {
+						break;
+					}
+					String data[] = lines[i].split("/");
 					int id = Integer.valueOf(data[0]);
 					gf.setFont(new Font("Comic Sans MS", Font.BOLD, gf.getFont().getSize()));
 					Color c = OtherPlayers.getColor(id, client.getPlayersCount());
@@ -485,7 +493,7 @@ public class GameStage extends Stage {
 						gf.setFont(new Font("Comic Sans MS", Font.BOLD+2, gf.getFont().getSize()));
 					}
 //					gf.drawString(data[1], (int) ((2)*GamePanel.scalefull), y);
-					Painter.drawString(gf, (lines.length - id) + ") " + data[1], c, c.darker().darker(), (int) ((3)*GamePanel.scalefull), y);
+					Painter.drawString(gf, (i+1) + ") " + data[1], c, c.darker().darker(), (int) ((3)*GamePanel.scalefull), y);
 					y += gf.getFont().getSize()*1.5;
 				}
 
