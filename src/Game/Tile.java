@@ -1,10 +1,13 @@
 package Game;
 
 import java.awt.Rectangle;
+import java.io.Serializable;
 
 import Stages.GameStage;
 
-public class Tile {
+public class Tile implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private static final int TS = 16;
 	

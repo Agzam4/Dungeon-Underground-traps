@@ -8,6 +8,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
 import Main.GamePanel;
 import Objects.Button;
@@ -17,9 +18,11 @@ import Work.LevelGenerator;
 import Work.Loader;
 import Work.MyAudio;
 
-public class GameOverStage extends Stage {
+public class GameOverStage extends Stage implements Serializable {
 
-	Maneger maneger;
+	private static final long serialVersionUID = 1L;
+
+	transient Maneger maneger;
 	
 	Player player;
 	String gameOver = "";
@@ -40,13 +43,21 @@ public class GameOverStage extends Stage {
 	MyAudio audio2;
 //	ArrayList<Gold> golds = new ArrayList<Gold>();
 	
-	public GameOverStage(MyAudio audio, Maneger maneger, Player p, int g, int d, LevelGenerator generator, GameStage gameStage) {
+	public void initObj(Maneger m) {
+		maneger = m;
+	}
+	
+	public GameOverStage(MyAudio audio, Maneger maneger, Player p, int g, int d, LevelGenerator generator, GameStage gameStage, String s) {
+		System.err.println(s);
 		this.maneger = maneger;
 		this.audio2 = audio;
 		gold = g;
 		diamonds = d;
 		this.generator = generator;
 		this.gameStage = gameStage;
+		if(s == null) {
+			s = "";
+		}
 		
 		d = 0;
 		player = p;
@@ -75,6 +86,10 @@ public class GameOverStage extends Stage {
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD100);
 			if(GameData.consecutive_wins > 999)
 				GameData.complitedAchievements(GameData.ACHIEVEMENTS_REWARD1000);
+			
+			if(s.equals("maze")) {
+				GameData.complitedAchievements(GameData.ACHIEVEMENTS_SEARCH1);
+			}
 			
 			GameData.complitedAchievements(GameData.ACHIEVEMENTS_CHEST);
 
@@ -171,7 +186,7 @@ public class GameOverStage extends Stage {
 					(int) (24*GamePanel.scalefull) + maxX, (int) (134*GamePanel.scalefull));
 		}
 		gf.setColor(new Color(52,161,216));
-		gf.drawImage(Loader.tileset[generator.BLOCK_DIAMOND-1],
+		gf.drawImage(Loader.tileset[generator.BLOCK_DIAMOND-1].getImg(),
 				(int) (0*GamePanel.scalefull),
 				(int) (100*GamePanel.scalefull),
 				(int) (32*GamePanel.scalefull),
@@ -182,7 +197,7 @@ public class GameOverStage extends Stage {
 				(int) (118*GamePanel.scalefull));//
 		
 		
-		gf.drawImage(Loader.tileset[generator.BLOCK_GOLD-1],
+		gf.drawImage(Loader.tileset[generator.BLOCK_GOLD-1].getImg(),
 				(int) (0*GamePanel.scalefull),
 				(int) (116*GamePanel.scalefull),
 				(int) (32*GamePanel.scalefull),
@@ -213,8 +228,8 @@ public class GameOverStage extends Stage {
 		gf.drawLine(x1, y2, x2, y1);
 	}
 	
-	final AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.DST_IN, 1f);
-	final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
+	transient final AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.DST_IN, 1f);
+	transient final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
 //	private void fillRect(Graphics2D gf, int w) {
 ////		gf.setComposite(alpha);
 ////		gf.setColor(new Color(0,0,0,0));
@@ -270,11 +285,19 @@ public class GameOverStage extends Stage {
 		if(menu.isClicked()) {
 			audio2.stop();
 			audio2.close();
-			maneger.loadStage(Maneger.MENU);
+			if(maneger == null) {
+				GamePanel.maneger.loadStage(Maneger.MENU);;
+			}else {
+				maneger.loadStage(Maneger.MENU);
+			}
 		}else if(next.isClicked()) {
 			audio2.stop();
 			audio2.close();
-			maneger.loadStage(Maneger.GAME);
+			if(maneger == null) {
+				GamePanel.maneger.loadStage(Maneger.MENU);;
+			}else {
+				maneger.loadStage(Maneger.MENU);
+			}
 		}
 		int targerW = (int) (GamePanel.frameW);
 		d = (d-targerW)*0.9 + targerW;

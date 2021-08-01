@@ -1,7 +1,6 @@
 package Stages;
 
 import java.awt.Color;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
@@ -43,9 +42,9 @@ public class AchievementStage extends Stage {
 	@Override
 	public void draw(Graphics2D g, Graphics2D gf) {
 
-		for (int y = 0; y < GamePanel.getGameHeight(); y+= Loader.ACHIEVEMENTS_BG.getHeight()) {
-			for (int x = 0; x < GamePanel.getGameWidth(); x+= Loader.ACHIEVEMENTS_BG.getWidth()) {
-				g.drawImage(Loader.ACHIEVEMENTS_BG, x, y, null);
+		for (int y = 0; y < GamePanel.getGameHeight(); y+= Loader.ACHIEVEMENTS_BG.getImg().getHeight()) {
+			for (int x = 0; x < GamePanel.getGameWidth(); x+= Loader.ACHIEVEMENTS_BG.getImg().getWidth()) {
+				g.drawImage(Loader.ACHIEVEMENTS_BG.getImg(), x, y, null);
 			}
 		}
 

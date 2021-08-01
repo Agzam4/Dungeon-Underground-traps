@@ -3,15 +3,12 @@ package Stages;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 import Main.GamePanel;
 import Multiplayer.GameClient;
 import Multiplayer.JServer;
 import Multiplayer.StaticServer;
-import Multiplayer.GameServer.ClientHandler;
 import Objects.Button;
 import Objects.JOptionPane;
 import Work.GameData;
@@ -233,14 +230,6 @@ public class Multiplayer extends Stage {
 			if(GameData.isDevMode) {
 				panel.needClose = true;
 			}
-		}
-	}
-
-	private void extracted() {
-		try {
-			
-		} catch (Exception e) {
-			// TODO: handle exception
 		}
 	}
 

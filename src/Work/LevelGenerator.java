@@ -2,16 +2,18 @@ package Work;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javax.swing.JOptionPane;
 
 import Game.Tile;
 import Multiplayer.GameServer;
 
-public class LevelGenerator {
+public class LevelGenerator implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	public static final int TYPE_OFFLINE = 0;
 	public static final int TYPE_ONLINE_REACHER = 1;
 	public static final int TYPE_ONLINE_RUN = 2;
@@ -226,6 +228,8 @@ public class LevelGenerator {
 		setBlock(xx, yy-1, BLOCK_CHEST);
 	}
 	
+	int untrap = 0;
+	
 	private void room(int type) {
 		roomX = 0;
 		roomY = 0;
@@ -245,6 +249,7 @@ public class LevelGenerator {
 				finishPoints.add(new Point(tileX, tileY));
 			tileX = width/2;
 			tileY = height/2;
+			untrap = 0;
 			return;
 		}
 		dir = dirs.get(random.nextInt(dirs.size()));
@@ -271,14 +276,16 @@ public class LevelGenerator {
 		if(dir == 1) { // Направо
 			while ((9 > roomX) && 2 == getBlock(tileX+roomX+1, tileY+roomY)) {
 				treasures(tileX+roomX, tileY+roomY);
-				rope();
-				spiky(tileX+roomX, tileY+roomY);
-				if(type == TYPE_OFFLINE) {
-					dart(tileX+roomX, tileY+roomY, false);
-					door(tileX+roomX, tileY+roomY);
+				if(untrap > 3) {
+					rope();
+					spiky(tileX+roomX, tileY+roomY);
+					if(type == TYPE_OFFLINE) {
+						dart(tileX+roomX, tileY+roomY, false);
+						door(tileX+roomX, tileY+roomY);
+					}
+					// TODO: Saw
+					crusher(tileX+roomX, tileY+roomY);
 				}
-				// TODO: Saw
-				crusher(tileX+roomX, tileY+roomY);
 				roomX++;
 			}
 			if(1 == getBlock(tileX+roomX,tileY+roomY-1) || 2 == getBlock(tileX+roomX,tileY+roomY-1)) {
@@ -333,6 +340,7 @@ public class LevelGenerator {
 //		}
 		
 		air--;
+		untrap++;
 	}
 	
 	private void tnt(int x, int y) {
@@ -549,10 +557,10 @@ public class LevelGenerator {
 		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE || type == BLOCK_PLATE;
 	}
 	
-	private boolean isReplaseble_noPlate(int x, int y) {
-		int type = getBlock(x, y);
-		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE;
-	}
+//	private boolean isReplaseble_noPlate(int x, int y) {
+//		int type = getBlock(x, y);
+//		return type == BLOCK_AIR || type == BLOCK_LADDER || type == BLOCK_STONE;
+//	}
 	
 //	private boolean isVoidBlock(int x, int y) {
 //		int type = getBlock(x, y);

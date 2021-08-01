@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.util.Iterator;
 
 
 import Main.GamePanel;
@@ -16,6 +15,7 @@ import Work.LevelGenerator;
 import Work.Loader;
 import Work.MouseController;
 import Work.MyAudio;
+import Work.MyFile;
 
 public class MenuStage extends Stage {
 
@@ -60,7 +60,6 @@ public class MenuStage extends Stage {
 			myButtons[i].draw(gf);
 		}
 		
-//		drawButtons(gf);
 
 		gf.setColor(Color.WHITE);
 		gf.setFont(new Font("Comic Sans MS", Font.BOLD, (int) (25*GamePanel.scalefull))); // TODO
@@ -99,34 +98,34 @@ public class MenuStage extends Stage {
 
 	int dist = 0;
 	
-	private void drawButtons(Graphics2D gf) {
-		for (int i = 0; i < buttons.length; i++) {
-			gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) ((15+buttonsv[i])*GamePanel.scalefull))); // TODO
-			buttonsW[i] = gf.getFontMetrics().stringWidth(buttons[i]);
-//			drawString(gf, buttons[i], 10, (2+i)*dist);
-			drawCenterString(gf, buttons[i], (3+i)*dist);
-//			gf.drawString(buttons[i], );
-		}
-		
-	}
+//	private void drawButtons(Graphics2D gf) {
+//		for (int i = 0; i < buttons.length; i++) {
+//			gf.setFont(new Font("Comic Sans MS", Font.PLAIN, (int) ((15+buttonsv[i])*GamePanel.scalefull))); // TODO
+//			buttonsW[i] = gf.getFontMetrics().stringWidth(buttons[i]);
+////			drawString(gf, buttons[i], 10, (2+i)*dist);
+//			drawCenterString(gf, buttons[i], (3+i)*dist);
+////			gf.drawString(buttons[i], );
+//		}
+//		
+//	}
 
-	private void drawCenterString(Graphics2D gf, String str, int y) {
-		int w = gf.getFontMetrics().stringWidth(str);
-//		gf.setColor(Color.GREEN);
-//		gf.drawRect((int) (GamePanel.frameW/2 - w/2), y-gf.getFont().getSize(), w, gf.getFont().getSize());
-		drawString(gf, str, (int) (GamePanel.frameW/2 - w/2), y);
-	}
+//	private void drawCenterString(Graphics2D gf, String str, int y) {
+//		int w = gf.getFontMetrics().stringWidth(str);
+////		gf.setColor(Color.GREEN);
+////		gf.drawRect((int) (GamePanel.frameW/2 - w/2), y-gf.getFont().getSize(), w, gf.getFont().getSize());
+//		drawString(gf, str, (int) (GamePanel.frameW/2 - w/2), y);
+//	}
 	
-	private void drawString(Graphics2D gf, String str, int x, int y) {
-		gf.setColor(Loader.COLOR_TEXT_FG);
-		gf.drawString(str, x, y);
-		gf.setColor(Loader.COLOR_TEXT_BG);
-		for (int xx = -1; xx < 2; xx++) {
-			for (int yy = -1; yy <2; yy++) {
-				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));
-			}
-		}
-	}
+//	private void drawString(Graphics2D gf, String str, int x, int y) {
+//		gf.setColor(Loader.COLOR_TEXT_FG);
+//		gf.drawString(str, x, y);
+//		gf.setColor(Loader.COLOR_TEXT_BG);
+//		for (int xx = -1; xx < 2; xx++) {
+//			for (int yy = -1; yy <2; yy++) {
+//				gf.drawString(str, (int) (x+xx*GamePanel.scalefull/1.5), (int) (y+yy*GamePanel.scalefull/1.5));
+//			}
+//		}
+//	}
 	
 	JOptionPane optionPane;
 	
@@ -139,15 +138,19 @@ public class MenuStage extends Stage {
 			if(optionPane.needClose) {
 				if(optionPane.isOKpressed) {
 					String seed = optionPane.getInput();
-					try {
-						maneger.setGameStage(Long.parseLong(seed));
-					} catch (NumberFormatException e) {
-						char[] sc = seed.toCharArray();
-						long newSeed = Long.MIN_VALUE;
-						for (int j = 0; j < sc.length; j++) {
-							newSeed += (int) sc[j] * (j+1) * Character.MAX_CODE_POINT;
+					if(seed.toLowerCase().equals("maze")) {
+						maneger.setGameStageMap("maze");
+					}else {
+						try {
+							maneger.setGameStage(Long.parseLong(seed));
+						} catch (NumberFormatException e) {
+							char[] sc = seed.toCharArray();
+							long newSeed = Long.MIN_VALUE;
+							for (int j = 0; j < sc.length; j++) {
+								newSeed += (int) sc[j] * (j+1) * Character.MAX_CODE_POINT;
+							}
+							maneger.setGameStage(newSeed);
 						}
-						maneger.setGameStage(newSeed);
 					}
 				}
 				optionPane = null;

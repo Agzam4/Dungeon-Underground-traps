@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 
 import Main.GamePanel;
-import Stages.GameOverStage;
 
 public class Painter {
 	

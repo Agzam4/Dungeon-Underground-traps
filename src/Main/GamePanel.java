@@ -51,7 +51,7 @@ public class GamePanel extends JPanel implements KeyListener {
 	private static int FPS = 60;
 	private static long sleep = 50;//1000 / FPS;
 	
-	static Maneger maneger = new Maneger(Maneger.MENU);
+	public static Maneger maneger = new Maneger(Maneger.MENU);
 	
 	public GamePanel() {
 		setBackground(Color.BLACK);

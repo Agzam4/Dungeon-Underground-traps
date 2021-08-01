@@ -8,11 +8,12 @@ import java.awt.Point;
 import java.awt.RadialGradientPaint;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import Main.GamePanel;
+import Maps.MapSerializable;
 import Multiplayer.GameClient;
-import Multiplayer.StaticServer;
 import Objects.Button;
 import Objects.Dart;
 import Objects.OtherPlayers;
@@ -21,15 +22,17 @@ import Work.GameData;
 import Work.LevelGenerator;
 import Work.Loader;
 import Work.MyAudio;
+import Work.MyFile;
 import Work.Painter;
 
-public class GameStage extends Stage {
+public class GameStage extends Stage implements Serializable {
 
-//	public BufferedImage[] tiles;
-	public static LevelGenerator level;
+	private static final long serialVersionUID = 1L;
+	
+	public LevelGenerator level;
 	GameOverStage overStage;
 
-	Maneger maneger;
+	transient Maneger maneger;
 	static MyAudio music;
 
 	private static final int PLATE_DOWN = 0;
@@ -53,11 +56,47 @@ public class GameStage extends Stage {
 	
 	boolean isLoadingOnline = false;
 	
+	public void initObj(Maneger m) { // TODO
+		maneger = m;
+		if(!isGameOver) {
+			music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+			music.play(-1);
+			for (int i = 0; i < sounds.length; i++) {
+				sounds[i] = new MyAudio("/sounds/" + soundsNames[i] + ".wav");
+				sounds[i].setVolume(GameData.audio[GameData.AUDIO_SOUNDS]/2f);
+			}
+		}
+		if(overStage != null) {
+			overStage.initObj(m);
+		}
+
+		if(player != null) {
+			player.setVK_UP(false);
+			player.setVK_DOWN(false);
+			player.setVK_RIGHT(false);
+			player.setVK_LEFT(false);
+		}
+	}
+	
 	public GameStage(Maneger maneger, Long seed) {
 		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
 		music.play(-1);
 		init(maneger, seed, 100, 100, 0);
 		setPositions();
+	}
+	
+	public GameStage(Maneger maneger2, String mappath) {
+		music = new MyAudio("/music/Dungeon_Underground_Traps.wav");
+		music.play(-1);
+		init(maneger, null, 100, 100, 0);
+		setPositions();
+		try {
+			secrterName = mappath;
+			MapSerializable map = (MapSerializable) MyFile.readObjectSteam("/" + mappath + ".map");
+			level.setMap(map.getMap());
+		} catch (ClassNotFoundException | IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void init(Maneger maneger, Long seed, int mw, int mh, int mode) {
@@ -92,7 +131,7 @@ public class GameStage extends Stage {
 		fx = level.getFinishX()*tilesize;
 		fy = level.getFinishY()*tilesize;
 
-		player = new Player(level);
+		player = new Player(this);
 		player.setPosition(mapX, mapY-tilesize);
 	}
 	
@@ -111,6 +150,7 @@ public class GameStage extends Stage {
 		pButtons[2].clickable = false;
 		pButtons[3].clickable = false;
 		this.client = client;
+		this.client.setGameStage(this);
 		level = null;
 //		this.client.setLg(level);
 		Thread loading = new Thread(() -> {
@@ -152,12 +192,12 @@ public class GameStage extends Stage {
 	public static double mapX2;
 	public static double mapY2;
 	
-	public static int vw = GamePanel.getCountWidth()/2;
-	public static int vh = GamePanel.getCountHeight()/2;
+//	public static int vw = GamePanel.getCountWidth()/2;
+//	public static int vh = GamePanel.getCountHeight()/2;
 	
 	
 	public Player player;
-	public static boolean isGameOver = false;
+	public boolean isGameOver = false;
 	
 	int time = 0;
 	int lavatime = 0;
@@ -305,19 +345,19 @@ public class GameStage extends Stage {
 				
 				
 				if(block == 26){
-					g.drawImage(Loader.tileset[24],
+					g.drawImage(Loader.tileset[24].getImg(),
 							px,
 							py + (int)((crusserY -16)*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(Loader.tileset[block-1],
+					g.drawImage(Loader.tileset[block-1].getImg(),
 							px,
 							py + (int)(crusserY*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(Loader.tileset[level.getBlock(bx, by-1)-1],
+					g.drawImage(Loader.tileset[level.getBlock(bx, by-1)-1].getImg(),
 							px,
 							py + (int)(-16*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
@@ -325,19 +365,19 @@ public class GameStage extends Stage {
 							null);
 					countCrushers++;// = true;
 				}else if (block == 30) {
-					g.drawImage(Loader.tileset[block-1],
+					g.drawImage(Loader.tileset[block-1].getImg(),
 							px,
 							py + (int)((- 16 - lavaH)*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(Loader.tileset[block+2],
+					g.drawImage(Loader.tileset[block+2].getImg(),
 							px,
 							py + (int)(-lavaH*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							(int)(tilesize*GamePanel.quality),
 							null);
-					g.drawImage(Loader.tileset[block+1],
+					g.drawImage(Loader.tileset[block+1].getImg(),
 							px,
 							py,
 							(int)(tilesize*GamePanel.quality),
@@ -345,7 +385,7 @@ public class GameStage extends Stage {
 							null);
 
 				}else {
-					g.drawImage(Loader.tileset[block-1],
+					g.drawImage(Loader.tileset[block-1].getImg(),
 							px,
 							py,
 							(int)(tilesize*GamePanel.quality),
@@ -437,7 +477,7 @@ public class GameStage extends Stage {
 
 		if(client == null) {
 		gf.setColor(new Color(37,107,142));//240,235,16));
-		gf.drawImage(Loader.tileset[level.BLOCK_DIAMOND-1],
+		gf.drawImage(Loader.tileset[level.BLOCK_DIAMOND-1].getImg(),
 				(int) ((0)*GamePanel.scalefull),
 				(int) ((0)*GamePanel.scalefull),
 				(int) (16*GamePanel.scalefull),
@@ -447,7 +487,7 @@ public class GameStage extends Stage {
 				(int) ((11)*GamePanel.scalefull),
 				(int) ((10)*GamePanel.scalefull));//+gf.getFont().getSize()/2
 		
-		gf.drawImage(Loader.tileset[level.BLOCK_GOLD-1],
+		gf.drawImage(Loader.tileset[level.BLOCK_GOLD-1].getImg(),
 				(int) ((0)*GamePanel.scalefull),
 				(int) ((8)*GamePanel.scalefull),
 				(int) (16*GamePanel.scalefull),
@@ -539,7 +579,7 @@ public class GameStage extends Stage {
 		}
 	}
 	
-	RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
+	transient RadialGradientPaint radialGradientPaint = new RadialGradientPaint(
 			new Point(GamePanel.getGameWidth()/2,GamePanel.getGameHeight()/2),
 			GamePanel.getGameHeight()/2f * GameData.visionRadius,
 			new float[] { .0f,1f},
@@ -562,10 +602,11 @@ public class GameStage extends Stage {
 	}
 	
 
-	final AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.DST_IN, 1f);
-	final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
+	transient final AlphaComposite alpha = AlphaComposite.getInstance(AlphaComposite.DST_IN, 1f);
+	transient final AlphaComposite normal = AlphaComposite.getInstance(AlphaComposite.DST_OVER, 1f);
 
 	public static double crusserY = 0;
+	public double crusserYs = 0;
 	static int gradientT = 0;
 
 	int boom_time = 0;
@@ -576,8 +617,13 @@ public class GameStage extends Stage {
 	
 	int win = 0;
 	
+	String secrterName = "";
+	
 	@Override
 	public void update() { // TODO: update
+		if(maneger == null) {
+			maneger = GamePanel.maneger;
+		}
 		if(client != null && client.isGameEnd()) {
 			if(win < 245)
 				win+=10;
@@ -688,8 +734,12 @@ public class GameStage extends Stage {
 						maneger.loadStage(Maneger.SETTINGS);
 						break;
 					case 4:
-						music.stop();
-						music.close();
+						try {
+							music.stop();
+							music.close();
+						} catch (NullPointerException e) {
+							e.printStackTrace();
+						}
 						isGameOver = true;
 						radius = (radius-1)*0.8f + 1;
 						gradientT = 0;
@@ -703,6 +753,9 @@ public class GameStage extends Stage {
 							}
 								maneger.loadStage(Maneger.MENU);
 						}else {
+							if(maneger == null) {
+								maneger = GamePanel.maneger;
+							}
 							maneger.loadStage(Maneger.MENU);
 						}
 						break;
@@ -723,6 +776,7 @@ public class GameStage extends Stage {
 		lavatime++;
 		gradientT++;
 		lavaH = 2+Math.cos(lavatime/10f)*2;
+		crusserY = crusserYs;
 		if(time == 0) {
 			crusserY = (crusserY - 16) / 2 + 16;
 			if(Math.round(crusserY) == 16) {
@@ -730,6 +784,7 @@ public class GameStage extends Stage {
 				crusserY = 16;
 				mapY2 +=countCrushers;
 			}
+			crusserYs = crusserY;
 		}
 		if(time == 1) {
 			crusserY *= .8;
@@ -737,13 +792,16 @@ public class GameStage extends Stage {
 				time+=2;
 				crusserY = 0;
 			}
+			crusserYs = crusserY;
 		}
 		if(time > 1) {
 			time++;
 			if(time > 10) {
 				time = 0;
 			}
+			crusserYs = crusserY;
 		}
+		crusserYs = crusserY;
 		
 		
 		for (int i = 0; i < darts.size(); i++) {
@@ -761,12 +819,15 @@ public class GameStage extends Stage {
 			isGameOver = true;
 			player.isGameOver = false;
 			if(client == null) {
-				overStage = new GameOverStage(music, maneger, player, gold, diamonds, level, this);
+				System.err.println(secrterName);
+				overStage = new GameOverStage(music, maneger, player, gold, diamonds, level, this, secrterName);
 				if(!player.getGameOvers()[0])
 					music.stop();
 			}
 		}
-		
+
+		int vw = GamePanel.getCountWidth()/2;
+		int vh = GamePanel.getCountHeight()/2;
 		
 		int tileX = (int) (mapX/tilesize);
 		int tileY = (int) (mapY/tilesize);
@@ -802,7 +863,8 @@ public class GameStage extends Stage {
 						if(dartsTime < 1) {
 							sounds[DART].play(0);
 							dartsTime = 50;
-							darts.add(new Dart(this, x+tileX-5, y+tileY));
+							darts.add(new Dart(this));
+							darts.get(darts.size()-1).setPos(x+tileX-5, y+tileY);
 						}
 					}
 					if(level.getBlock(x+tileX, y+tileY+2) == level.BLOCK_TNT && boom_time == 0) {

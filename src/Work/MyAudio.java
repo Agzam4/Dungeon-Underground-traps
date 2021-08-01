@@ -2,12 +2,15 @@ package Work;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 
 import javax.sound.sampled.*;
 
-public class MyAudio {
+public class MyAudio implements Serializable {
 	
-	private Clip clip;
+	transient private static final long serialVersionUID = 1L;
+	
+	transient private Clip clip;
 	private boolean isPlaying = false;
 //	private AudioInputStream getAudioInputStream(String s) throws UnsupportedAudioFileException, IOException {
 //		try {

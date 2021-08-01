@@ -7,15 +7,19 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Game.BufferedImageS;
+import Stages.GameStage;
+
 public class Loader {
 
 	public static int tilesize = 16;
-	public static BufferedImage[] tileset;
-	public static BufferedImage[] achievement_ico;
+	public static BufferedImageS[] tileset;
+	public static BufferedImageS[] achievement_ico;
 
-	public static BufferedImage PLAYER;
-	public static BufferedImage PLAYER2;
-	public static BufferedImage DART;
+	public static BufferedImageS PLAYER;
+	public static BufferedImageS PLAYER2;
+	public static BufferedImageS DART;
+	public static BufferedImageS ICO;
 
 	public static Color COLOR_GAME_BG;
 	public static Color COLOR_TEXT_BG;
@@ -40,7 +44,7 @@ public class Loader {
 	public static final int BORDER_TYPE_OUT = 1;
 	public static int borderType = BORDER_TYPE_IN;
 
-	public static BufferedImage ACHIEVEMENTS_BG;
+	public static BufferedImageS ACHIEVEMENTS_BG;
 
 	public static int minQuality = 1;
 
@@ -48,10 +52,11 @@ public class Loader {
 	
 	public static void reload(String pack) {
 		MyFile.pack = pack;
-		PLAYER =  MyFile.readImage("tileset/player");
-		PLAYER2 =  MyFile.readImage("tileset/player2");
-		DART =  MyFile.readImage("tileset/dart");
-		ACHIEVEMENTS_BG =  MyFile.readImage("bg/achievement_stage");
+		PLAYER = new BufferedImageS(MyFile.readImage("tileset/player"));
+		PLAYER2 =  new BufferedImageS(MyFile.readImage("tileset/player2"));
+		DART = new BufferedImageS(MyFile.readImage("tileset/dart"));
+		ACHIEVEMENTS_BG =  new BufferedImageS(MyFile.readImage("bg/achievement_stage"));
+		ICO = new BufferedImageS(MyFile.readImage("ico/ico"));
 		loadTileSet();
 		loadAchievementIco();
 		loadColors();
@@ -156,12 +161,12 @@ public class Loader {
 	
 	private static void loadAchievementIco() {
 		BufferedImage tileset = MyFile.readImage("ico/achievement_img");
-		Loader.achievement_ico = new BufferedImage[4 * 4];
+		Loader.achievement_ico = new BufferedImageS[4 * 4];
 		int size = tileset.getWidth()/4;
 		int id = 0;
 		for (int y = 0; y < 4; y++) {
 			for (int x = 0; x < 4; x++) {
-				Loader.achievement_ico[id] = tileset.getSubimage(x*size, y*size, size, size);
+				Loader.achievement_ico[id] = new BufferedImageS(tileset.getSubimage(x*size, y*size, size, size));
 				id++;
 			}
 		}
@@ -175,11 +180,11 @@ public class Loader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Loader.tileset = new BufferedImage[7 * 5];
+		Loader.tileset = new BufferedImageS[7 * 5];
 		int id = 0;
 		for (int y = 0; y < 5; y++) {
 			for (int x = 0; x < 7; x++) {
-				Loader.tileset[id] = tileset.getSubimage(x*tilesize, y*tilesize, tilesize, tilesize);
+				Loader.tileset[id] = new BufferedImageS(tileset.getSubimage(x*tilesize, y*tilesize, tilesize, tilesize));
 				id++;
 			}
 		}

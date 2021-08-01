@@ -42,7 +42,7 @@ public class PacksStage extends Stage {
 	public void draw(Graphics2D g, Graphics2D gf) {
 		// TODO: Scroller
 			
-		int bh = packBlockH+packBlockDis;
+//		int bh = packBlockH+packBlockDis;
 //		double stageH = GamePanel.frameH-downBlockH;
 ////		double minY = ((-vale)/(double)(packBlockH+packBlockDis))-packs.length;
 //		//stageH + packBlockDis - 60 downBlockH +packs.length*bh - packBlockDis+pad*2
@@ -129,7 +129,7 @@ public class PacksStage extends Stage {
 		if(sy > 0) {
 			sy /= 2;
 		}
-		double blockDist = packBlockH+packBlockDis;
+//		double blockDist = packBlockH+packBlockDis;
 //		count = (int) (Math.floor(()/blockDist));
 		double vale = (GamePanel.frameH - downBlockH) -pad*2+packBlockDis;
 		double minY = ((vale)/(double)(packBlockH+packBlockDis))-packs.length;

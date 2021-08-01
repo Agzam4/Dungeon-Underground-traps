@@ -5,23 +5,29 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
+import Game.BufferedImageS;
 import Main.GamePanel;
 import Stages.GameStage;
 import Work.LevelGenerator;
 import Work.Loader;
 
-public class Player extends GameObject {
+public class Player implements Serializable {
 
 	public static int tilesize = GameStage.tilesize;
-	BufferedImage img = Loader.PLAYER;
-	LevelGenerator level;
+	BufferedImageS img = Loader.PLAYER;
 	int lw;
 	int lh;
+
+	protected double x;
+	protected double y;
 	
-	int hp = 100;
+	protected BufferedImage main;
+	
+	int hp = 0;
 
 	double cx = 5*GamePanel.quality;//-0.1;
 	double cy = 5*GamePanel.quality;
@@ -36,16 +42,16 @@ public class Player extends GameObject {
 	 * 5 - Дротик
 	 */
 	String gameover = "";
+	GameStage gameStage;
 	
-	public Player(LevelGenerator level) {
-		super(Loader.PLAYER);
+	public Player(GameStage gameStage) {
+//		super(Loader.PLAYER);
+		this.gameStage = gameStage;
 		isGameOver = false;
-		this.level = level;
-		lw = level.getWidth() * 16;
-		lh = level.getHeight() * 16;
+		lw = gameStage.level.getWidth() * 16;
+		lh = gameStage.level.getHeight() * 16;
 	}
 
-	@Override
 	public void draw(Graphics2D g) {
 //		double k = GameStage.tilesize*GamePanel.quality;
 		int q = (int) GamePanel.quality;
@@ -56,7 +62,7 @@ public class Player extends GameObject {
 			g.setColor(c);
 			g.fillRect(nx, ny, nd, nd);
 		}
-		g.drawImage(img, nx, ny, nd, nd, null);
+		g.drawImage(img.getImg(), nx, ny, nd, nd, null);
 
 //		g.setColor(Color.RED);
 //		int xx = (int)((x-GameStage.mapX + GameStage.mapX2 + GamePanel.getGameWidth()/q/2)*q - cx);
@@ -79,7 +85,6 @@ public class Player extends GameObject {
 	private double speed = 1;
 
 	// 1939783342040334186
-	@Override
 	public void update() {
 		cx = 5*GamePanel.quality;//-0.1;
 		cy = 5*GamePanel.quality;
@@ -135,16 +140,16 @@ public class Player extends GameObject {
 		
 		// TODO
 
-		if(x > level.getWidth()*16)
-			x -= level.getWidth()*16;
+		if(x > gameStage.level.getWidth()*16)
+			x -= gameStage.level.getWidth()*16;
 		if(x < 0)
-			x += level.getWidth()*16;
+			x += gameStage.level.getWidth()*16;
 		
 
-		if(y > level.getHeight()*16)
-			y -= level.getHeight()*16;
+		if(y > gameStage.level.getHeight()*16)
+			y -= gameStage.level.getHeight()*16;
 		if(y < 0)
-			y += level.getHeight()*16;
+			y += gameStage.level.getHeight()*16;
 
 		
 		if(untime > 0) {
@@ -155,6 +160,10 @@ public class Player extends GameObject {
 			}
 		}
 		checkTouch();
+		
+// 		FAST WIN: // FIXME
+//		gameOvers[0] = true;
+//		touchTrap();
 	}
 	
 	int untime = 0;
@@ -174,7 +183,7 @@ public class Player extends GameObject {
 		if(hp < 1) {
 			isGameOver = true;
 		}else {
-			level.deleteTraps((int)(x/tilesize), (int) (y/tilesize));
+			gameStage.level.deleteTraps((int)(x/tilesize), (int) (y/tilesize));
 		}
 		System.out.println("GameOver: " + gameover);
 	}
@@ -195,17 +204,17 @@ public class Player extends GameObject {
 	private void checkTrapOne(int xx, int yy) {
 		if(isTrap(xx, yy)) {
 			isTrap = true;
-			int block = level.getBlock((int)(getCutX_x16(x+xx)/tilesize), (int)(getCutY(y+yy)/tilesize));
-			if(block == level.BLOCK_CHEST) {
+			int block = gameStage.level.getBlock((int)(getCutX_x16(x+xx)/tilesize), (int)(getCutY(y+yy)/tilesize));
+			if(block == gameStage.level.BLOCK_CHEST) {
 				gameOvers[0] = true;
 			}
-			if(block == level.BLOCK_SPIKY || block == level.BLOCK_SPIKY_UP) {
+			if(block == gameStage.level.BLOCK_SPIKY || block == gameStage.level.BLOCK_SPIKY_UP) {
 				gameOvers[1] = true;
 			}
-			if(block == level.BLOCK_SPIKY_FALL || block == level.BLOCK_SPIKY_ONE) {
+			if(block == gameStage.level.BLOCK_SPIKY_FALL || block == gameStage.level.BLOCK_SPIKY_ONE) {
 				gameOvers[2] = true;
 			}
-			if(block == level.BLOCK_LAVA) {
+			if(block == gameStage.level.BLOCK_LAVA) {
 				gameOvers[3] = true;
 			}
 		}
@@ -222,13 +231,13 @@ public class Player extends GameObject {
 	}
 	
 	private void checkTouchOne(Rectangle hitbox, int x, int y) {
-		if(hitbox.intersects(GameStage.level.getHitbox(x/tilesize,y/tilesize,2)))
-			GameStage.level.setHit(x/tilesize, y/tilesize, true);
+		if(hitbox.intersects(gameStage.level.getHitbox(x/tilesize,y/tilesize,2)))
+			gameStage.level.setHit(x/tilesize, y/tilesize, true);
 	}
 	
 	private boolean isTrap(int xx, int yy) {
 		Rectangle hitbox = new Rectangle((int)getCutX_x16(x), (int)getCutY(y), 10, 10);
-		return hitbox.intersects(level.getHitbox((int)(getCutX_x16(x+xx)/tilesize), (int)(getCutY(y+yy)/tilesize), 3));
+		return hitbox.intersects(gameStage.level.getHitbox((int)(getCutX_x16(x+xx)/tilesize), (int)(getCutY(y+yy)/tilesize), 3));
 	}
 	public Rectangle getHitbox() {
 		return new Rectangle((int)getCutX_x16(x), (int)getCutY(y), 10, 10);
@@ -247,31 +256,54 @@ public class Player extends GameObject {
 	}
 
 	private boolean isWall(int type) {
-		Rectangle h1 = new Rectangle((int)(x), (int)(y), 10, 10);
-		Rectangle h2 = new Rectangle((int)(x+lw), (int)(y+lh), 10, 10);
-		return isWall_UnCut(h1, x, y, type)
-				|| isWall_UnCut(h1, x-lw, y, type)
-				|| isWall_UnCut(h1, x, y-lh, type)
-				|| isWall_UnCut(h1, x-lw, y-lh, type)
+		
+		return isWall(type, new Rectangle((int)(x), (int)(y), 10, 10))
+
+				|| isWall(type, new Rectangle((int)(x), (int)(y-lw), 10, 10))
+				|| isWall(type, new Rectangle((int)(x), (int)(y+lw), 10, 10))
 				
-				|| isWall_UnCut(h2, x, y, type)
-				|| isWall_UnCut(h2, x-lw, y, type)
-				|| isWall_UnCut(h2, x, y-lh, type)
-				|| isWall_UnCut(h2, x-lw, y-lh, type);
+				|| isWall(type, new Rectangle((int)(x-lw), (int)(y-lw), 10, 10))
+				|| isWall(type, new Rectangle((int)(x-lw), (int)(y), 10, 10))
+				|| isWall(type, new Rectangle((int)(x-lw), (int)(y+lw), 10, 10))
+				
+				|| isWall(type, new Rectangle((int)(x+lw), (int)(y-lw), 10, 10))
+				|| isWall(type, new Rectangle((int)(x+lw), (int)(y), 10, 10))
+				|| isWall(type, new Rectangle((int)(x+lw), (int)(y+lw), 10, 10))
+				;
 	}
+
+	private boolean isWall(int type, Rectangle h) {
+		
+		return isWall_UnCut(h, x, y, type)
+				|| isWall_UnCut(h, x, y-lh, type)
+				|| isWall_UnCut(h, x, y+lh, type)
+				
+				|| isWall_UnCut(h, x-lw, y, type)
+				|| isWall_UnCut(h, x-lw, y-lh, type)
+				|| isWall_UnCut(h, x-lw, y+lh, type)
+
+				|| isWall_UnCut(h, x+lw, y, type)
+				|| isWall_UnCut(h, x+lw, y-lh, type)
+				|| isWall_UnCut(h, x+lw, y+lh, type)
+
+				;
+	}
+	
+	// 4963306624645377230
+	
 	private boolean isWall_UnCut(Rectangle h, double x, double y, int type) {
 		double tilesize = Player.tilesize; // TODO
 		int nx = (int)((x)/tilesize);
 		int nx2 = (int)((x+10)/tilesize);
 		//level.getHitbox((int)(x/tilesize), (int)(y/tilesize));
 		return 
-				h.intersects(level.getHitbox(nx, (int)((y)/tilesize), type))
+				h.intersects(gameStage.level.getHitbox(nx, (int)((y)/tilesize), type))
 				||
-				h.intersects(level.getHitbox(nx2, (int)((y)/tilesize), type))
+				h.intersects(gameStage.level.getHitbox(nx2, (int)((y)/tilesize), type))
 				||
-				h.intersects(level.getHitbox(nx2, (int)(((y)+10)/tilesize), type))
+				h.intersects(gameStage.level.getHitbox(nx2, (int)(((y)+10)/tilesize), type))
 				||
-				h.intersects(level.getHitbox(nx, (int)(((y)+10)/tilesize), type))
+				h.intersects(gameStage.level.getHitbox(nx, (int)(((y)+10)/tilesize), type))
 				;
 				
 //				hitbox.intersects(new Rectangle((int)x+11*tilesize, (int)y, 11*tilesize, 11*tilesize))
@@ -290,13 +322,13 @@ public class Player extends GameObject {
 		int nx2 = (int)(getCutX(x+10)/tilesize);
 		//level.getHitbox((int)(x/tilesize), (int)(y/tilesize));
 		return 
-				hitbox.intersects(level.getHitbox(nx, (int)(getCutY(y)/tilesize), type))
+				hitbox.intersects(gameStage.level.getHitbox(nx, (int)(getCutY(y)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx2, (int)(getCutY(y)/tilesize), type))
+				hitbox.intersects(gameStage.level.getHitbox(nx2, (int)(getCutY(y)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx2, (int)((getCutY(y)+10)/tilesize), type))
+				hitbox.intersects(gameStage.level.getHitbox(nx2, (int)((getCutY(y)+10)/tilesize), type))
 				||
-				hitbox.intersects(level.getHitbox(nx, (int)((getCutY(y)+10)/tilesize), type))
+				hitbox.intersects(gameStage.level.getHitbox(nx, (int)((getCutY(y)+10)/tilesize), type))
 				;
 				
 //				hitbox.intersects(new Rectangle((int)x+11*tilesize, (int)y, 11*tilesize, 11*tilesize))
@@ -308,7 +340,7 @@ public class Player extends GameObject {
 //				hitbox.intersects(new Rectangle((int)x, (int)y+11*tilesize, 11*tilesize, 11*tilesize));
 	}
 //	private boolean isWall2() {
-//		return 1 != level.getBlock((int)Math.floor(x/16), (int)Math.floor(y/16));
+//		return 1 != gameStage.level.getBlock((int)Math.floor(x/16), (int)Math.floor(y/16));
 //	}
 
 	boolean isVK_UP;
@@ -398,7 +430,11 @@ public class Player extends GameObject {
 	public void setColor(Color c) {
 		this.c = c;
 	}
-	public void setImg(BufferedImage img) {
+	public void setImg(BufferedImageS img) {
 		this.img = img;
+	}
+	public void setPosition(double x, double y) {
+		this.x = x;
+		this.y = y;
 	}
 }

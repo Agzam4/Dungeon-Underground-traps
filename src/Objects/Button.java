@@ -3,13 +3,16 @@ package Objects;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.io.Serializable;
 
 import Main.GamePanel;
 import Work.Loader;
 import Work.MouseController;
 import Work.MyAudio;
 
-public class Button {
+public class Button implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	public boolean clickable = true;
 	boolean isClicked = false;

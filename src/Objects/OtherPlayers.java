@@ -55,7 +55,7 @@ public class OtherPlayers {
 		int nx = (int) ((x - GameStage.mapX - w/2)*GamePanel.quality + GamePanel.getGameWidth()/2);
 		int ny = (int) ((y - GameStage.mapY - h/2)*GamePanel.quality + GamePanel.getGameHeight()/2);
 		g.fillRect(nx, ny, nw, nh);
-		g.drawImage(Loader.PLAYER2, nx, ny, nw, nh, null);
+		g.drawImage(Loader.PLAYER2.getImg(), nx, ny, nw, nh, null);
 	}
 	
 	public void setPosition(double x, double y) {

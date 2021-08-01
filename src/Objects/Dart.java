@@ -1,42 +1,43 @@
 package Objects;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
+import Game.BufferedImageS;
 import Main.GamePanel;
 import Stages.GameStage;
 import Work.Loader;
 
-public class Dart {
+public class Dart implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	double x,y;
 	int w,h;
 	GameStage gameStage;
-	BufferedImage img;
+	BufferedImageS img;
 	
-	public Dart(GameStage gameStage, int x, int y) {
-		this.x = x*16;// + GamePanel.getGameWidth()/2;
-		this.y = y*16;// + GamePanel.getGameHeight()/2;
+	public Dart(GameStage gameStage) {
 		this.gameStage = gameStage;
 		
-		try {
-			img = ImageIO.read(GameStage.class.getResourceAsStream("/img/tileset/dart.png"));
-		} catch (IOException e) {
-			img = new BufferedImage(5, 5, BufferedImage.TYPE_INT_RGB);
-		}
-		w = img.getWidth();
-		h = img.getHeight();
+		w = Loader.DART.getImg().getWidth();
+		h = Loader.DART.getImg().getHeight();
+	}
+	
+	public void setPos(int x, int y) {
+		this.x = x*16;// + GamePanel.getGameWidth()/2;
+		this.y = y*16;// + GamePanel.getGameHeight()/2;
 	}
 	
 	public void draw(Graphics2D g) {
 		if(isHit)
 			return;
-		g.drawImage(Loader.DART,
+		g.drawImage(Loader.DART.getImg(),
 				(int) ((x - GameStage.mapX + w/2)*GamePanel.quality + GamePanel.getGameWidth()/2),
 				(int) ((y - GameStage.mapY + h/2)*GamePanel.quality + GamePanel.getGameHeight()/2),
 				(int) (w*GamePanel.quality),
@@ -59,7 +60,7 @@ public class Dart {
 			gameStage.player.isGameOver = true;
 		}
 		if(time > 3) {
-			if(hitbox.intersects(GameStage.level.getHitbox((int) (x/16), (int) (y/16), 0))) {
+			if(hitbox.intersects(gameStage.level.getHitbox((int) (x/16), (int) (y/16), 0))) {
 				isHit = true;
 			}
 		}

@@ -2,10 +2,12 @@ package Stages;
 
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
 import Multiplayer.GameClient;
 import Multiplayer.StaticServer;
 import Objects.JOptionPane;
+import Work.GameData;
 import Work.LevelGenerator;
 import Work.MouseController;
 
@@ -27,7 +29,13 @@ public class Maneger {
 	
 	public Maneger(int stageID) {
 		MouseController.isMousePressed = false;
-		loadStage(stageID);
+		if(GameData.saveSameStage_obj == null) {
+			loadStage(stageID);
+		} else {
+			GameData.saveSameStage_obj.initObj(this);
+			stages[GAME] = GameData.saveSameStage_obj;
+			selected = GAME;
+		}
 	}
 	
 	public void setMultiplayer(String msg) {
@@ -50,6 +58,12 @@ public class Maneger {
 		MouseController.isMousePressed = false;
 		selected = GAME;
 		stages[GAME] = new GameStage(this, seed);
+	}
+
+	public void setGameStageMap(String mappath) {
+		MouseController.isMousePressed = false;
+		selected = GAME;
+		stages[GAME] = new GameStage(this, mappath);
 	}
 
 	public void setGameStageClient(GameClient client) {
@@ -90,7 +104,7 @@ public class Maneger {
 			stages[GAME] = new GameStage(this, l);
 			break;
 		case GAMEOVER:
-			stages[GAMEOVER] = new GameOverStage(null, this, null,0,0,null,null);
+			stages[GAMEOVER] = new GameOverStage(null, this, null,0,0,null,null,"");
 			break;
 		case ACHIEVEMENTS:
 			stages[ACHIEVEMENTS] = new AchievementStage(this);
@@ -145,5 +159,13 @@ public class Maneger {
 			if(stage != null)
 				stage.reloadTexts();
 		}
+	}
+
+	public boolean isGameStage() {
+		return selected == GAME;
+	}
+	
+	public Stage getStage() {
+		return stages[selected];
 	}
 }

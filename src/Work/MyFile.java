@@ -1,21 +1,18 @@
 package Work;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URISyntaxException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -229,5 +226,32 @@ public class MyFile {
 	
 	public static String getPackName(int id) {
 		return packs[id] == null ? "Default": packs[id];
+	}
+	
+	public static void saveObject(Object o, String outname) {
+        ObjectOutputStream out;
+		try {
+			out = new ObjectOutputStream(new FileOutputStream(outname));
+//			System.out.println("Writing Object: " + o.getClass().toString());
+			out.writeObject(o);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public static Object readObject(String inname) throws ClassNotFoundException, IOException {
+		ObjectInputStream in = new ObjectInputStream(new FileInputStream(inname));
+		Object o = in.readObject();
+		in.close();
+		return o;
+	}
+	public static Object readObjectSteam(String string) throws IOException, ClassNotFoundException {
+		System.out.println(string);
+		ObjectInputStream in = new ObjectInputStream(MyFile.class.getResourceAsStream(string));
+		Object o = in.readObject();
+		in.close();
+		return o;
 	}
 }

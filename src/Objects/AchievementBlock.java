@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import Game.BufferedImageS;
 import Main.GamePanel;
 import Work.GameData;
 import Work.Loader;
@@ -17,9 +18,9 @@ import Work.MyFile;
 
 public class AchievementBlock {
 
-	static BufferedImage bg = getImage("bg");
-	static BufferedImage fg = getImage("fg");
-	static BufferedImage imgs = getImage("img");
+	static BufferedImageS bg = new BufferedImageS(getImage("bg"));
+	static BufferedImageS fg = new BufferedImageS(getImage("fg"));
+	static BufferedImageS imgs = new BufferedImageS(getImage("img"));
 	static String achievementsText[] = MyFile.readFileInResource("/text/achievements." + GameData.language).split("\n");
 	MyAudio audio;
 	
@@ -39,7 +40,7 @@ public class AchievementBlock {
 	boolean isNew = false;
 
 	public AchievementBlock(int id) {
-		image = imgs.getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
+		image = imgs.getImg().getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
 		this.id = id;
 		title = achievementsText[id*2];
 		text = achievementsText[id*2 + 1];
@@ -48,7 +49,7 @@ public class AchievementBlock {
 	}
 	public AchievementBlock(int id, boolean n) {
 		audio = new MyAudio("/music/Achievement.wav");
-		image = imgs.getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
+		image = imgs.getImg().getSubimage((id%4)*15, (int) (Math.floor(id/4)*15), 15, 15);
 		this.id = id;
 		title = achievementsText[id*2];
 		text = achievementsText[id*2 + 1];
@@ -78,9 +79,9 @@ public class AchievementBlock {
 			gf.setColor(Color.DARK_GRAY);
 			gf.drawRect(x-w/2, y-w/2, w-1, w-1);
 		}
-		drawImage(gf, fg);
-		drawImage(gf, Loader.achievement_ico[id]);
-		drawImage(gf, bg);
+		drawImage(gf, fg.getImg());
+		drawImage(gf, Loader.achievement_ico[id].getImg());
+		drawImage(gf, bg.getImg());
 	}
 	
 	public void drawInfo(Graphics2D gf) {
@@ -174,8 +175,8 @@ public class AchievementBlock {
 		}
 		int mx = MouseController.getMousePointOnFrame().x;
 		int my = MouseController.getMousePointOnFrame().y;
-		int w = (int) (bg.getWidth()*GamePanel.scalefull);
-		int h = (int) (bg.getHeight()*GamePanel.scalefull);
+		int w = (int) (bg.getImg().getWidth()*GamePanel.scalefull);
+		int h = (int) (bg.getImg().getHeight()*GamePanel.scalefull);
 		onMouse = mx < x+w/2 && mx > x-w/2 &&  my < y+h/2 && my > y-h/2;
 		s = (int) (GamePanel.scalefull * 15);
 		

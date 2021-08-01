@@ -84,6 +84,12 @@ public class GameClient {
 		playerName = name;
 		init(ip, i, m);
 	}
+	
+	GameStage gameStage;
+	
+	public void setGameStage(GameStage gameStage) {
+		this.gameStage = gameStage;
+	}
 
 	private void init(String ip, int i, Maneger m) throws UnknownHostException, IOException {
 		isGameEnd = false;
@@ -298,7 +304,7 @@ public class GameClient {
 							String[] pos = data.split(":");
 							lg.setTile(Integer.parseInt(pos[0]),
 									Integer.parseInt(pos[1]), lg.BLOCK_AIR);
-							GameStage.level = lg;
+							gameStage.level = lg;
 							scoreLast = lg.getScore();
 						} catch (NumberFormatException e) {
 							e.printStackTrace();

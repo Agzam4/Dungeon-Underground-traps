@@ -88,7 +88,7 @@ public class DungeonJFrame extends JFrame {
 	
 	public DungeonJFrame() {
 		setUndecorated(GameData.fullscreen);
-		
+		setIconImage(Loader.ICO.getImg());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Dungeon (Underground traps)" + txts[(int) (Math.random()*txts.length)]);
 		setExtendedState(JFrame.MAXIMIZED_BOTH);

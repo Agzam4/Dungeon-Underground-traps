@@ -12,9 +12,13 @@ import javax.swing.JOptionPane;
 
 import Main.GamePanel;
 import Objects.AchievementBlock;
+import Stages.GameStage;
+import Stages.Maneger;
 
 public class GameData {
 
+	public static GameStage saveSameStage_obj = loadGameStageObj();
+	
 	public static boolean isDevMode = loadBooleanArray("dm", 1)[0];
 	
 	public static final String language = getLanguage();
@@ -89,6 +93,17 @@ public class GameData {
 	public static void reloadText() {
 		texts = loadTexts();
 		GamePanel.reloadTexts();
+	}
+
+	private static GameStage loadGameStageObj() {
+		try {
+			Object o = MyFile.readObject("data/saves/.gmstg");
+			System.out.println((GameStage) o);
+			return (GameStage) o;
+		} catch (ClassNotFoundException | ClassCastException | IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	private static ArrayList<AchievementBlock> blocks = new ArrayList<AchievementBlock>();
@@ -207,22 +222,29 @@ public class GameData {
 		 */
 		
 		saveBooleanArray("dm", new boolean[] {isDevMode}, "");
+		
+		if(GamePanel.maneger.isGameStage()) {
+			System.out.println("Saving Game");
+			MyFile.saveObject(GamePanel.maneger.getStage(), "data/saves/.gmstg");
+		}else {
+			MyFile.saveObject(null, "data/saves/.gmstg");
+		}
 	}
 
 	private static void saveData(String value, String file) throws IOException {
 		MyFile.writeFile("data/saves/." + file, value +" " + hashString(value));
 	}
 	
-	private static boolean[] loadAchievements() {
-		boolean[] a = new boolean[16];
-		char[] achievementsString = (MyFile.readFile("data/saves/.a")+"1234567890123456").toCharArray();
-		for (int i = 0; i < a.length; i++) {
-			if(achievementsString[i] == ' ') {
-				a[i] = true;
-			}
-		}
-		return a;
-	}
+//	private static boolean[] loadAchievements() {
+//		boolean[] a = new boolean[16];
+//		char[] achievementsString = (MyFile.readFile("data/saves/.a")+"1234567890123456").toCharArray();
+//		for (int i = 0; i < a.length; i++) {
+//			if(achievementsString[i] == ' ') {
+//				a[i] = true;
+//			}
+//		}
+//		return a;
+//	}
 	
 	
 	private static void saveIntArray(String file, int[] is, String text) {
