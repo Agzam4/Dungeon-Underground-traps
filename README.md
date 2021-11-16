@@ -4,5 +4,5 @@
 
 ![Lines of code](https://img.shields.io/tokei/lines/github/agzam4/Dungeon-Underground-traps?color=blueviolet&style=flat-square)
 # Dungeon-Underground-traps
-
+### [Download v2.4.0](https://github.com/Agzam4/Dungeon-Underground-traps/releases/download/v2.4.0/Dungeon-Underground-traps.zip)
 ![](https://repository-images.githubusercontent.com/374747355/be49621d-ffb5-46bc-b98c-724c192d13a3)
